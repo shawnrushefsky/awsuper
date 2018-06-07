@@ -1,0 +1,37 @@
+{
+  "name": "awssuper-server",
+  "version": "0.0.1",
+  "description": "A webserver for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "LOG_LEVEL=fatal APP_ENV=test mocha $(find tests -name '*-tests.js')"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shawnrushefsky/awsuper.git"
+  },
+  "keywords": [
+    "aws",
+    "automation"
+  ],
+  "author": "Shawn Rushefsky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shawnrushefsky/awsuper/issues"
+  },
+  "homepage": "https://github.com/shawnrushefsky/awsuper#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "mocha": "^5.2.0",
+    "supertest": "^3.1.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.253.1",
+    "bcrypt": "^2.0.1",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "ms": "^2.1.1"
+  }
+}
