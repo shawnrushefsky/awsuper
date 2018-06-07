@@ -4,6 +4,7 @@
   "description": "A webserver for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "LOG_LEVEL=fatal APP_ENV=test mocha $(find tests -name '*-tests.js')"
   },
   "repository": {
@@ -32,6 +33,7 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "logger-nodejs": "^1.0.0",
     "ms": "^2.1.1"
   }
 }
