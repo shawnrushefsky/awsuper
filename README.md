@@ -2,6 +2,23 @@
 
 A containerized Webserver and accompanying Command Line tool for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.
 
+# Launching with Docker
+
+This will eventually be hosted on Docker hub, but it isn't yet. For now, you can run this in docker by first building the docker image:
+
+```shell
+cd server
+docker build -t awsuper .
+```
+
+And then running it with your AWS credentials as environment variables:
+
+```shell
+docker run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper
+```
+
+After outputing your auth token, the server will be listening on port 4242.
+
 # Installing for local use
 
 This was built using Node.js 10.4.0. You may experience problems if you are using a different version.
