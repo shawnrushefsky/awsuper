@@ -2,6 +2,15 @@
 
 A containerized Webserver and accompanying Command Line tool for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.
 
+### Goals
+
+1. Webserver should be natively deployable through docker
+2. Webserver should have minimal system requirements
+3. Webserver should follow security best practices, and protect aws credentials
+4. Command line tool should feature tab autocompletion
+5. Command line tool should be maximally expressive
+6. Command line tool should be installable through common package managers
+
 # Launching with Docker
 
 This will eventually be hosted on Docker hub, but it isn't yet. For now, you can run this in docker by first building the docker image:
@@ -81,12 +90,3 @@ Gets a JSON array of all instances that belong to a layer
 ## GET /stacks/:stackName/layers/:layerName/instances/:hostName
 
 Gets a JSON object of an instance by hostname. Also accepts a number if hostnames match `${layerName}${number}`
-
-# Goals
-
-1. Webserver should be natively deployable through docker
-2. Webserver should have minimal system requirements
-3. Webserver should follow security best practices, and protect aws credentials
-4. Command line tool should feature tab autocompletion
-5. Command line tool should be maximally expressive
-6. Command line tool should be installable through common package managers
