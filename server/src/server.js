@@ -1,6 +1,5 @@
 const express = require('express');
-const Logger = require('logger-nodejs');
-const log = new Logger({ name: 'awsuper' });
+const log = require('./utils/logger');
 
 const app = express();
 

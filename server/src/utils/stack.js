@@ -1,2 +1,9 @@
-const AWS = require('aws-sdk');
-const config = require('../config');
+const { EC2 } = require('../clients/aws');
+
+async function listStacks() {
+
+}
+
+module.exports = {
+    listStacks
+};
