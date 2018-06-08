@@ -33,7 +33,13 @@ module.exports = {
 };
 ```
 
+When the server starts it will output your auth token, which you will need to use in the Authorization header for every request
+
 # Endpoints
+
+All endpoints require an Authorization header:
+
+`Authorization: Bearer ${token}`
 
 ## GET /stacks
 
