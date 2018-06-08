@@ -33,6 +33,24 @@ module.exports = {
 };
 ```
 
+# Endpoints
+
+## GET /stacks
+
+Gets a JSON array of all your stacks
+
+## GET /stacks/:name
+
+Gets a JSON object describing one stack
+
+## GET /stacks/:name/layers
+
+Gets a JSON array of all layers on a particular stack
+
+## GET /stacks/:stackName/layers/:name
+
+Gets a JSON object of one layer on a particular stack
+
 # Goals
 
 1. Webserver should be natively deployable through docker
