@@ -23,7 +23,7 @@ docker build -t awsuper .
 And then running it with your AWS credentials as environment variables:
 
 ```shell
-docker run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper
+docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper
 ```
 
 After outputing your auth token, the server will be listening on port 4242.
