@@ -61,6 +61,10 @@ Gets a JSON object of one layer on a particular stack
 
 Gets a JSON array of all instances that belong to a layer
 
+## GET /stacks/:stackName/layers/:layerName/instances/:hostName
+
+Gets a JSON object of an instance by hostname. Also accepts a number if hostnames match `${layerName}${number}`
+
 # Goals
 
 1. Webserver should be natively deployable through docker
