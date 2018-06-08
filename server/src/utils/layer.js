@@ -1,6 +1,8 @@
 const { OpsWorks } = require('../clients/aws');
 const { mapByName } = require('./common');
 
+const { getStackByName } = require('./stack');
+
 /**
  * Returns an array of Layer objects from the specified stack
  * @param {String} stackID the StackId of the Stack
@@ -32,7 +34,24 @@ async function getLayerByName(stackID, layerName) {
     return { error: `That stack does not container a Layer named ${layerName}` };
 }
 
+async function getLayerWithOnlyNames(stackName, layerName) {
+    let { error, stack } = await getStackByName(stackName);
+
+    if (error) {
+        return { error };
+    }
+
+    let layer = await getLayerByName(stack.StackId, layerName);
+
+    if (layer.error) {
+        return { error: layer.error };
+    }
+
+    return { layer: layer.layer };
+}
+
 module.exports = {
     listLayers,
-    getLayerByName
+    getLayerByName,
+    getLayerWithOnlyNames
 };

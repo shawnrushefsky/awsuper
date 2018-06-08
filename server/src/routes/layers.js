@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { getStackByName } = require('../utils/stack');
-const { listLayers, getLayerByName } = require('../utils/layer');
+const { listLayers, getLayerWithOnlyNames } = require('../utils/layer');
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get('/:stackName/layers', async (req, res) => {
 });
 
 router.get('/:stackName/layers/:name', async (req, res) => {
-    let { error, stack } = await getStackByName(req.params.stackName);
+    let { error, layer } = await getLayerWithOnlyNames(req.params.stackName, req.params.name);
 
     if (error) {
         return res.status(404).json({
@@ -28,15 +28,7 @@ router.get('/:stackName/layers/:name', async (req, res) => {
         });
     }
 
-    let layer = await getLayerByName(stack.StackId, req.params.name);
-
-    if (layer.error) {
-        return res.status(404).json({
-            errors: [layer.error]
-        });
-    }
-
-    return res.status(200).json(layer.layer);
+    return res.status(200).json(layer);
 });
 
 module.exports = {

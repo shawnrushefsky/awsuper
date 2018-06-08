@@ -2,6 +2,7 @@ const express = require('express');
 
 const { listStacks, getStackByName } = require('../utils/stack');
 const layerRouter = require('./layers').router;
+const instanceRouter = require('./instances').router;
 
 const router = express.Router();
 
@@ -24,6 +25,8 @@ router.get('/:name', async (req, res) => {
 });
 
 router.use('/', layerRouter);
+
+router.use('/', instanceRouter);
 
 module.exports = {
     router
