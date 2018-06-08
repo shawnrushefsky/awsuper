@@ -47,7 +47,7 @@ async function getLayerWithOnlyNames(stackName, layerName) {
         return { error: layer.error };
     }
 
-    return { layer: layer.layer };
+    return { layer: layer.layer, stack };
 }
 
 module.exports = {

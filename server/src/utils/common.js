@@ -7,10 +7,16 @@ function mapByName(objArray) {
     let mapping = {};
 
     for (let obj of objArray) {
-        mapping[obj.Name.toLowerCase()] = obj;
+        if (obj.Name) {
+            mapping[obj.Name.toLowerCase()] = obj;
+        }
 
         if (obj.Shortname) {
             mapping[obj.Shortname.toLowerCase()] = obj;
+        }
+
+        if (obj.Hostname) {
+            mapping[obj.Hostname.toLowerCase()] = obj;
         }
     }
 
