@@ -61,4 +61,4 @@ typings/
 .next
 
 # User specific files
-aws.js
+*/config/aws.js
