@@ -1,10 +1,11 @@
 const express = require('express');
 const log = require('./utils/logger');
+const authMiddleware = require('./middleware/auth');
 const stackRouter = require('./routes/stacks').router;
 
 const app = express();
 
-app.use('/stacks', stackRouter);
+app.use('/stacks', authMiddleware, stackRouter);
 
 function start() {
     log.info('Server listening on Port 4242');
