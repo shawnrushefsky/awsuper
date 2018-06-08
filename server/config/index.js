@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const log = require('./utils/logger');
+const log = require('../src/utils/logger');
 
 const base = require('./base');
 
