@@ -3,7 +3,10 @@ version: '3'
 services:
   awsuper-server:
     container_name: awsuper
-    image: node:10.4.0-stretch
+    image: awsuper
+    build:
+      context: ./
+      dockerfile: Dockerfile
     ports: 
       - "4242:4242"
     volumes:
