@@ -23,6 +23,15 @@ function mapByName(objArray) {
     return mapping;
 }
 
+/**
+ * Returns a promise that resolves after a given duration
+ * @param {Int} duration the duration we should sleep in millis
+ */
+function sleep(duration) {
+    return new Promise(resolve => setTimeout(resolve, duration));
+}
+
 module.exports = {
-    mapByName
+    mapByName,
+    sleep
 };
