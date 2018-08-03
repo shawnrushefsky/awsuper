@@ -8,6 +8,11 @@ RUN apt-get update && apt-get -y upgrade \
     && echo "deb https://dl.bintray.com/rabbitmq/debian stretch main" | tee /etc/apt/sources.list.d/bintray.rabbitmq.list \
     && apt-get update && apt-get install -y rabbitmq-server
 
+# Prepare the system to run couchdb
+RUN apt-get install -y mongodb
+
+WORKDIR /data/db
+
 EXPOSE 4242
 
 WORKDIR /code
@@ -18,4 +23,6 @@ RUN npm install
 
 COPY . .
 
-CMD [ "service", "rabbitmq-server", "start", "&&", "npm", "start" ]
+CMD service rabbitmq-server start \
+    && service mongodb start \
+    && tail -f /var/log/rabbitmq/*.log /var/log/mongodb/mongodb.log

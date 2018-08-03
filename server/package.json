@@ -37,6 +37,7 @@
     "jsonwebtoken": "^8.2.2",
     "lodash": "^4.17.10",
     "logger-nodejs": "^1.0.0",
+    "mongoose": "^5.2.6",
     "ms": "^2.1.1"
   }
 }
