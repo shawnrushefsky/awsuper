@@ -90,3 +90,19 @@ Gets a JSON array of all instances that belong to a layer
 ## GET /stacks/:stackName/layers/:layerName/instances/:hostName
 
 Gets a JSON object of an instance by hostname. Also accepts a number if hostnames match `${layerName}${number}`
+
+## PUT /stacks/:stackName/layers/:layerName/rolling-restart
+
+This will perform a rolling restart on the specified layer.
+
+Accepts optional JSON body:
+
+```json
+{
+    "window": 1
+}
+```
+
+| Paramater | Default | Description |
+|-----------|---------|-------------|
+| window | 1 | This is how many instances should be restarted at a time

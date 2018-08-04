@@ -1,4 +1,4 @@
-const { OpsWorks, EC2 } = require('../clients/aws');
+const { OpsWorks } = require('../clients/aws');
 const { getLayerWithOnlyNames } = require('./layer');
 const { mapByName } = require('./common');
 
@@ -33,9 +33,13 @@ async function getInstanceByID(instanceID) {
         InstanceIds: [instanceID]
     };
 
-    let instances = await EC2.describeInstances(params).promise();
+    let instances = await OpsWorks.describeInstances(params).promise();
 
-    return instances.Reservations.Instances[0];
+    if (instances.Instances.length > 0) {
+        return instances.Instances[0];
+    }
+
+    return null;
 }
 
 async function getInstanceByOnlyNames(stackName, layerName, hostName) {

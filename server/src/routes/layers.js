@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 
 const { getStackByName } = require('../utils/stack');
 const { listLayers, getLayerWithOnlyNames } = require('../utils/layer');
-const { rollingRestart } = require('../utils/rolling-restart');
+const rabbit = require('../clients/rabbit');
+const config = require('../../config');
 
 const router = express.Router();
 
@@ -36,24 +37,15 @@ router.get('/:stackName/layers/:name', async (req, res) => {
 router.put('/:stackName/layers/:layerName/rolling-restart', bodyParser.json(), async (req, res) => {
     const { stackName, layerName } = req.params;
 
-    const DEFAULTS = {
-        window: 1
+    const restartJob = {
+        stackName,
+        layerName,
+        options: req.body || {}
     };
 
-    const options = { ...DEFAULTS, ...req.body };
+    await rabbit.sendToQueue(config.rabbit.queues.rollingRestart, restartJob);
 
-    let { error, instances } = await rollingRestart(stackName, layerName, options);
-
-    if (error) {
-        return res.status(404).json({ errors: [error] });
-    }
-
-    return res.status(202).json({
-        stack: stackName,
-        layer: layerName,
-        window: options.window,
-        totalInstances: instances.length
-    });
+    return res.status(202).json(restartJob);
 });
 
 module.exports = {

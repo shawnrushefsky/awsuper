@@ -14,17 +14,23 @@ const DEFAULT_OPTIONS = {
  * @param {String} layerName
  * @param {Object} options
  */
-async function rollingRestart(stackName, layerName, options) {
+async function rollingRestart(msg, ack, nack) {
+    let { stackName, layerName, options } = msg;
+
     let { error, instances } = await listInstancesFromNames(stackName, layerName);
 
     if (error) {
-        return { error };
+        log.error(error);
+        return nack(false);
     }
 
     // Merge user provided options with default options
     options = { ...DEFAULT_OPTIONS, ...options };
 
     let restarted = [];
+
+    // We only want to restart instances that are actually online already
+    instances = instances.filter(instance => instance.Status === 'online');
 
     log.info(`Restarting ${instances.length} instances in ${stackName}/${layerName}, ${options.window} at a time.`);
 
@@ -33,7 +39,7 @@ async function rollingRestart(stackName, layerName, options) {
         let promises = [];
         let awaitingRestart = [];
 
-        for (let j = 0; j < options.window, j + i < instances.length; j++) {
+        for (let j = 0; j < options.window && j + i < instances.length; j++) {
             const instanceID = instances[i+j].InstanceId;
             promises.push(restartInstance(instanceID, `${j * 15}s`));
             awaitingRestart.push(instanceID);
@@ -41,16 +47,16 @@ async function rollingRestart(stackName, layerName, options) {
 
         try {
             await Promise.all(promises);
+            restarted = restarted.concat(awaitingRestart);
         } catch (e) {
-            return { error: e };
+            log.error(e);
+            return nack(false);
         }
-
-        restarted = restarted.concat(awaitingRestart);
 
         log.info(`Rolling Restarter for ${stackName}/${layerName}: ${restarted.length} / ${instances.length} restarted.`);
     }
 
-    return { instances };
+    return ack();
 }
 
 /**
@@ -58,16 +64,29 @@ async function rollingRestart(stackName, layerName, options) {
  * @param {String} instanceID
  */
 async function restartInstance(instanceID, offset='0s') {
-    await OpsWorks.rebootInstance({ InstanceId: instanceID });
+    // Stop the instance
+    log.info(`Stopping Instance: ${instanceID}`);
+    await OpsWorks.stopInstance({ InstanceId: instanceID }).promise();
 
-    let instance = { status: 'rebooting' };
+    let instance = { Status: undefined };
 
+    // Wait for it to be stopped
     do {
         await sleep(ms('1m') + ms(offset));
 
         instance = await getInstanceByID(instanceID);
+    } while (instance.Status !== 'stopped');
 
-    } while (instance.status !== 'online');
+    // Start the instance
+    log.info(`Starting Instance: ${instanceID}`);
+    await OpsWorks.startInstance({ InstanceId: instanceID }).promise();
+
+    // Wait for it to be online
+    do {
+        await sleep(ms('1m') + ms(offset));
+
+        instance = await getInstanceByID(instanceID);
+    } while (instance.Status !== 'online');
 
     return instance;
 }

@@ -1,10 +1,15 @@
 const server = require('./server');
 const { generateJWT } = require('./utils/auth');
+const rabbit = require('./clients/rabbit');
 
-console.log(`
-*******************TOKEN*******************
-${generateJWT()}
-*******************************************
-`);
+(async () => {
+    console.log(`
+    *******************TOKEN*******************
+    ${generateJWT()}
+    *******************************************
+    `);
 
-server.start();
+    await rabbit.connect();
+
+    server.start();
+})();
