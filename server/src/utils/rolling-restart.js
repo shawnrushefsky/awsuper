@@ -39,6 +39,7 @@ async function rollingRestart(msg, ack, nack) {
         let promises = [];
         let awaitingRestart = [];
 
+        // restart this window of instances
         for (let j = 0; j < options.window && j + i < instances.length; j++) {
             const instanceID = instances[i+j].InstanceId;
             promises.push(restartInstance(instanceID, `${j * 15}s`));
