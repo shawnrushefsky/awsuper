@@ -91,18 +91,60 @@ Gets a JSON array of all instances that belong to a layer
 
 Gets a JSON object of an instance by hostname. Also accepts a number if hostnames match `${layerName}${number}`
 
-## PUT /stacks/:stackName/layers/:layerName/rolling-restart
+## POST /tasks/layer-rolling-restart
 
-This will perform a rolling restart on the specified layer.
+This will perform a rolling restart on the specified stack/layer.
 
-Accepts optional JSON body:
+Requires JSON body:
 
-```json
+```javascript
 {
-    "window": 1
+    "stackName": "stack",
+    "layerName": "layer",
+    "window": 1 // Optional. Default is 1
 }
 ```
 
 | Paramater | Default | Description |
 |-----------|---------|-------------|
+| stackName | None | The name of the stack
+| layerName | None | The name of the layer 
 | window | 1 | This is how many instances should be restarted at a time
+
+This will return JSON:
+
+```javascript
+{
+    "window": 1,
+    "status": "PENDING",
+    "_id": "5b6b71dbe30e1f1ae3ff2e07",
+    "stackName": "stack",
+    "layerName": "layer",
+    "instancesShutdown": [],
+    "instancesStarted": [],
+    "instancesOnline": [],
+    "date_created": "2018-08-08T22:42:35.644Z",
+    "date_updated": "2018-08-08T22:42:35.644Z"
+}
+```
+
+## GET /tasks/layer-rolling-restarter/:id
+
+This retrieves a layer-rolling-restarter task. As the restarter runs, it updates this task periodically.
+
+This will return JSON:
+
+```javascript
+{
+    "window": 1,
+    "status": "RUNNING",
+    "_id": "5b6b71dbe30e1f1ae3ff2e07",
+    "stackName": "stack",
+    "layerName": "layer",
+    "instancesShutdown": [],
+    "instancesStarted": [],
+    "instancesOnline": [],
+    "date_created": "2018-08-08T22:42:35.644Z",
+    "date_updated": "2018-08-08T22:42:35.644Z"
+}
+```
