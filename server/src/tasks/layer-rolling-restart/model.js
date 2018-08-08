@@ -10,8 +10,10 @@ const Instance = new mongoose.Schema({
         required: true
     },
 }, {
+    _id: false,
     timestamps: {
-        createdAt: 'time',
+        createdAt: 'timestamp',
+        updatedAd: false
     }
 });
 

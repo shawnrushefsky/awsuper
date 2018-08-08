@@ -12,8 +12,10 @@ const Model = require('./model');
  * @param {Object} options
  */
 async function rollingRestart(msg, ack, nack) {
-    let task = await Model.findById(msg._id);
-    let { stackName, layerName, window } = task;
+    const task = await Model.findById(msg._id);
+    const { stackName, layerName, window } = task;
+
+    const originalStatus = task.status;
 
     await Model.findByIdAndUpdate(msg._id, { status: 'RUNNING' });
 
@@ -31,8 +33,10 @@ async function rollingRestart(msg, ack, nack) {
     // We only want to restart instances that are actually online already
     instances = instances.filter(instance => instance.Status === 'online');
 
-    // Update the database record with the now discovered totalInstances
-    await Model.findByIdAndUpdate(msg._id, { $set: { totalInstances: instances.length } });
+    // If this is the first time this job has been attempted, update the database record with the now discovered totalInstances
+    if (originalStatus === 'PENDING') {
+        await Model.findByIdAndUpdate(msg._id, { $set: { totalInstances: instances.length } });
+    }
 
     log.info(`Restarting ${instances.length} instances in ${stackName}/${layerName}, ${window} at a time.`);
 
