@@ -43,7 +43,7 @@ async function rollingRestart(msg, ack, nack) {
 
         // restart this window of instances
         for (let j = 0; j < window && j + i < instances.length; j++) {
-            promises.push(restartInstance(instances[i+j], `${j * 15}s`));
+            promises.push(restartInstance(instances[i+j], msg._id, `${j * 15}s`));
             awaitingRestart.push(instances[i+j]);
         }
 
@@ -88,7 +88,7 @@ async function restartInstance(instance, recordID, offset='0s') {
 
     // Start the instance
     log.info(`Starting Instance: ${InstanceId}`);
-    await OpsWorks.startInstance({ InstanceId: InstanceId }).promise();
+    await OpsWorks.startInstance({ InstanceId }).promise();
 
     await Model.findByIdAndUpdate(recordID, {
         $push: { instancesStarted: { InstanceId, Hostname } }

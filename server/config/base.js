@@ -3,8 +3,11 @@ module.exports = {
         port: 4242
     },
     rabbit: {
-        queues: {
-            rollingRestart: 'rollingRestart'
-        }
+        host: 'localhost',
+        port: 5672
+    },
+    mongo: {
+        host: 'localhost',
+        port: 27017
     }
 };

@@ -16,6 +16,7 @@ function loadTasks() {
     let directories = fs.readdirSync(taskDir);
 
     for (let taskName of directories) {
+        log.info(`Loading Task: ${taskName}`);
         let taskPath = path.join(taskDir, taskName);
         try {
             let task = require(taskPath);
@@ -40,12 +41,12 @@ function loadTasks() {
 
             router.get(`/${taskName}/:id`, async (req, res) => {
                 try {
-                    const task = await task.model.findOneById(req.params.id);
+                    const retrievedTask = await task.model.findById(req.params.id);
 
-                    if (!task) {
+                    if (!retrievedTask) {
                         return res.status(404).json({ errors: [`No ${taskName} with that name could be found.`] });
                     } else {
-                        return res.status(200).json(task);
+                        return res.status(200).json(retrievedTask);
                     }
                 } catch (e) {
                     log.error(e);
@@ -56,6 +57,7 @@ function loadTasks() {
             });
 
             rabbit.consume(taskName, task.task);
+            log.info(`Task Loaded: ${taskName}`);
         } catch (e) {
             log.error(e);
         }

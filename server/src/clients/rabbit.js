@@ -1,6 +1,7 @@
 const amqp = require('amqplib');
 const log = require('../utils/logger');
 const { sleep } = require('../utils/common');
+const config = require('../../config');
 const { inspect } = require('util');
 
 class Rabbit {
@@ -41,7 +42,9 @@ class Rabbit {
                 this.connecting = true;
                 log.info('RabbitMQ Client - Connecting...');
 
-                this.connection = await amqp.connect();
+                const rabbitURL = `amqp://${config.rabbit.host}:${config.rabbit.port}`;
+
+                this.connection = await amqp.connect(rabbitURL);
 
                 // Auto-reconnect if the connection breaks
                 this.connection.on('error', async (err) => {
