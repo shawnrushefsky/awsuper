@@ -36,6 +36,8 @@ async function rollingRestart(msg, ack, nack) {
         await Model.findByIdAndUpdate(msg._id, { $set: { totalInstances: instances.length } });
 
         log.info(`Beginning layer-rolling-restart: ${task._id}`);
+    } else {
+        log.info(`Resuming layer-rolling-restart: ${task._id}`);
     }
 
     log.info(`Restarting ${instances.length} instances in ${stackName}/${layerName}, ${window} at a time.`);

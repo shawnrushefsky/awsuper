@@ -9,12 +9,12 @@ const Instance = new mongoose.Schema({
         type: String,
         required: true
     },
-}, {
-    _id: false,
-    timestamps: {
-        createdAt: 'timestamp',
-        updatedAd: false
+    timestamp: {
+        type: Date,
+        default: Date.now
     }
+}, {
+    _id: false
 });
 
 const LayerRollingRestart = new mongoose.Schema({
@@ -57,6 +57,7 @@ const LayerRollingRestart = new mongoose.Schema({
         default: 'PENDING'
     },
 }, {
+    versionKey: false,
     timestamps: {
         createdAt: 'date_created',
         updatedAt: 'date_updated'

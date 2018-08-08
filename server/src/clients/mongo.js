@@ -9,7 +9,7 @@ let connected = false;
 
 
 async function connect() {
-    log.info('Connecting to MongoDB...');
+    log.info('MongoDB Client - Connecting...');
 
     while (!connected) {
         try {
@@ -17,7 +17,7 @@ async function connect() {
 
             connected = true;
 
-            log.info('MongoDB connected.');
+            log.info('MongoDB Client - Connected.');
         } catch (e) {
             log.error(e);
 
