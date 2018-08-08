@@ -26,8 +26,6 @@ async function rollingRestart(msg, ack, nack) {
         return nack(false);
     }
 
-    // Merge user provided options with default options
-
     let restarted = [];
 
     // We only want to restart instances that are actually online already
@@ -36,6 +34,8 @@ async function rollingRestart(msg, ack, nack) {
     // If this is the first time this job has been attempted, update the database record with the now discovered totalInstances
     if (originalStatus === 'PENDING') {
         await Model.findByIdAndUpdate(msg._id, { $set: { totalInstances: instances.length } });
+
+        log.info(`Beginning layer-rolling-restart: ${task._id}`);
     }
 
     log.info(`Restarting ${instances.length} instances in ${stackName}/${layerName}, ${window} at a time.`);
@@ -64,6 +64,8 @@ async function rollingRestart(msg, ack, nack) {
     }
 
     await Model.findByIdAndUpdate(msg._id, { status: 'COMPLETED' });
+
+    log.info(`Completed layer-rolling-restart: ${task._id}`);
 
     return ack();
 }
