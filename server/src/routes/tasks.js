@@ -56,6 +56,22 @@ function loadTasks() {
                 }
             });
 
+            router.delete(`/${taskName}/:id`, async (req, res) => {
+                try {
+                    const cancelledTask = await task.cancel(req.params.id);
+
+                    return res.status(200).json(cancelledTask);
+                } catch (e) {
+                    let { errors, errorType } = parsePersistError(e);
+
+                    if (errorType === errorTypes.CLIENT) {
+                        return res.status(400).json( { errors });
+                    } else {
+                        return res.status(500).json( { errors });
+                    }
+                }
+            });
+
             rabbit.consume(taskName, task.task);
             log.info(`Task Loaded: ${taskName}`);
         } catch (e) {

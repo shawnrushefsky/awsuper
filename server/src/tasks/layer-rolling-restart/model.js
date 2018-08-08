@@ -51,7 +51,7 @@ const LayerRollingRestart = new mongoose.Schema({
         type: String,
         trim: true,
         enum: {
-            values: ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED'],
+            values: ['PENDING', 'RUNNING', 'COMPLETED', 'CANCELLED', 'FAILED'],
             message: '{VALUE} is not a valid status.'
         },
         default: 'PENDING'

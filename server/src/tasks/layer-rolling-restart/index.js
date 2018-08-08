@@ -12,10 +12,12 @@ const Model = require('./model');
  * @param {Object} options
  */
 async function rollingRestart(msg, ack, nack) {
-    const task = await Model.findById(msg._id);
-    const { stackName, layerName, window } = task;
+    let task = await Model.findById(msg._id);
+    const { stackName, layerName, window, status: originalStatus } = task;
 
-    const originalStatus = task.status;
+    if (originalStatus === 'COMPLETED' || originalStatus === 'FAILED' || originalStatus === 'CANCELLED') {
+        return nack(false);
+    }
 
     await Model.findByIdAndUpdate(msg._id, { status: 'RUNNING' });
 
@@ -44,6 +46,12 @@ async function rollingRestart(msg, ack, nack) {
 
     // Go through the instances and restart them {window} at a time with an async process
     for (let i = 0; i < instances.length; i += window) {
+        task = await Model.findById(msg._id);
+
+        if (task.status === 'COMPLETED' || task.status === 'FAILED' || task.status === 'CANCELLED') {
+            return nack(false);
+        }
+
         let promises = [];
         let awaitingRestart = [];
 
@@ -116,7 +124,14 @@ async function restartInstance(instance, recordID, offset='0s') {
     return instance;
 }
 
+async function cancelTask(recordID) {
+    const cancelledTask = await Model.findByIdAndUpdate(recordID, { $set: { status: 'CANCELLED' } }, { new: true });
+
+    return cancelledTask;
+}
+
 module.exports = {
     task: rollingRestart,
-    model: Model
+    model: Model,
+    cancel: cancelTask
 };
