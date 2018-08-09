@@ -31,5 +31,8 @@
     "commander": "^2.15.1",
     "commander-completion": "^1.0.1",
     "logger-nodejs": "^1.0.0"
+  },
+  "bin": {
+    "awsuper": "src/awsuper.js"
   }
 }
