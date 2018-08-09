@@ -2,7 +2,15 @@
 
 # Launching with Docker
 
-This will eventually be hosted on Docker hub, but it isn't yet. For now, you can run this in docker by first building the docker image:
+The AWSuper server is hosted on [Docker Hub](https://hub.docker.com/r/shawnrushefsky/awsuper/)
+
+```shell
+docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 shawnrushefsky/awsuper
+```
+
+# Launching with Docker from Source
+
+If you are building a docker image from source, instead of using the version hosted on docker hub:
 
 ```shell
 cd server
