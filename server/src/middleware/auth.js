@@ -8,7 +8,7 @@ async function authMiddleware(req, res, next) {
 
     if (!authorization) {
         // TODO: add comment explaining this blasphemy.
-        res.setHeader('WWW-Authenticate', 'Basic realm="awsuper"');
+        res.setHeader('WWW-Authenticate', 'Bearer realm="awsuper"');
 
         return res.status(401).json({ errors: [AUTH_ERROR] });
     }
