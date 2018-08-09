@@ -310,4 +310,37 @@ describe('Rabbit Client', () => {
             });
         });
     });
+
+    describe('cancel', () => {
+        before(async () => {
+            await rabbit.connect();
+        });
+
+        after(async () => {
+            await rabbit.disconnect();
+        });
+
+        it('throws an error if there is no consumer on the queue provided', async () => {
+            try {
+                await rabbit.cancel('notreal');
+                expect.fail();
+            } catch (e) {
+                expect(e.message).to.equal('notreal is not an active consumer. Choose one of: ');
+            }
+        });
+
+        it('cancels a consumer on a queue', async () => {
+            let queueName = 'testQueue';
+            await rabbit.consume(queueName, (msg, ack, nack) => { ack(); });
+
+            expect(rabbit.consumers[queueName]).to.not.be.undefined;
+
+            const cancelSpy = sandbox.spy(rabbit.consumeChannel, 'cancel');
+
+            await rabbit.cancel(queueName);
+
+            expect(cancelSpy.called).to.be.true;
+            expect(rabbit.consumers[queueName]).to.be.undefined;
+        });
+    });
 });
