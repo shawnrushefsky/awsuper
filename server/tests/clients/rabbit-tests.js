@@ -301,9 +301,6 @@ describe('Rabbit Client', () => {
                     // The consume channel's nack function should have the requeue option as false
                     expect(nackSpy.args[msgCount][2]).to.be.false;
                     done();
-                } else {
-                    // This message should not be delivered a third time, because it was not requeued after number 2.
-                    expect.fail();
                 }
 
                 msgCount += 1;
