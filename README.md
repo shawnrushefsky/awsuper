@@ -109,7 +109,17 @@ Beyond that, your task can do virtually anything you achievable with Node. Becau
 
 ### Task
 
-When a task is enqueued, it gets executed by this function.
+When a task is enqueued, it gets executed by this function. Your function should take the form:
+
+```javascript
+async function(msg, ack, nack) {
+    let task = Model.findById(msg._id);
+
+    // Do some stuff
+
+    return ack();
+}
+```
 
 #### msg
 This will always take the form `{ _id: TaskID }`.
