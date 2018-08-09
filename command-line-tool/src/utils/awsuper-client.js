@@ -70,6 +70,10 @@ async function cancelTask(task, id) {
     return res.data;
 }
 
+async function listAllTasks() {
+    return await get('/tasks');
+}
+
 module.exports = {
     client,
     getAllStacks,
@@ -80,5 +84,6 @@ module.exports = {
     describeInstance,
     doTask,
     checkTask,
-    cancelTask
+    cancelTask,
+    listAllTasks
 };

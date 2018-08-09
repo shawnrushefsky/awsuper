@@ -8,4 +8,5 @@ program
     .command('do', 'Start a new Task')
     .command('check', 'Check a running Task')
     .command('cancel', 'Cancel a running Task')
+    .command('tasks', 'List all availabe Tasks').alias('lst')
     .parse(process.argv);

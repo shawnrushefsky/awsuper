@@ -12,8 +12,10 @@ const router = express.Router();
 
 router.use(bodyParser.json());
 
+let directories = [];
+
 function loadTasks() {
-    let directories = fs.readdirSync(taskDir);
+    directories = fs.readdirSync(taskDir);
 
     for (let taskName of directories) {
         log.info(`Loading Task: ${taskName}`);
@@ -81,5 +83,9 @@ function loadTasks() {
 }
 
 loadTasks();
+
+router.get('/', async (req, res) => {
+    return res.status(200).json(directories);
+});
 
 module.exports = { router };
