@@ -4,7 +4,11 @@ This command line tool allows convenient access to the endpoints exposed by the 
 
 ## Installation
 
-TBD
+You can install the command line tool conveniently through NPM:
+
+```shell
+npm install -g awsuper
+```
 
 ## Use
 
