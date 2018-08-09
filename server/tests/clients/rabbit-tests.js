@@ -3,6 +3,7 @@ const chai = require('chai');
 const rabbit = require('../../src/clients/rabbit');
 const amqp = require('amqplib');
 const config = require('../../config');
+const { sleep } = require('../../src/utils/common');
 
 const { expect } = chai;
 
@@ -112,6 +113,9 @@ describe('Rabbit Client', () => {
     });
 
     describe('sendToQueue', () => {
+        const originalMsg = { key: 'value' };
+        const queueName = 'testQueue';
+
         before(async () => {
             await rabbit.connect();
         });
@@ -123,9 +127,6 @@ describe('Rabbit Client', () => {
         it('uses maybeAssertQueue to ensure queue existence', async () => {
             const maybeAssertQueue = sandbox.spy(rabbit, 'maybeAssertQueue');
 
-            const originalMsg = { key: 'value' };
-            const queueName = 'testQueue';
-
             await rabbit.sendToQueue(queueName, originalMsg);
 
             expect(maybeAssertQueue.calledOnceWithExactly(queueName)).to.be.true;
@@ -136,9 +137,6 @@ describe('Rabbit Client', () => {
         });
 
         it('publishes a JSON object to the specified queue', async () => {
-            const originalMsg = { key: 'value' };
-            const queueName = 'testQueue';
-
             // Ensure we start from a fresh queue
             await rabbit.publishChannel.deleteQueue(queueName);
             delete rabbit.assertedQueues[queueName];
@@ -153,6 +151,79 @@ describe('Rabbit Client', () => {
 
             expect(msg).to.deep.equal(originalMsg);
             ack();
+        });
+    });
+
+    describe('get', () => {
+        const queueName = 'testQueue';
+        const originalMsg = { key: 'value' };
+
+        before(async () => {
+            await rabbit.connect();
+        });
+
+        beforeEach(async () => {
+            // Ensure we start from a fresh queue
+            await rabbit.publishChannel.deleteQueue(queueName);
+            delete rabbit.assertedQueues[queueName];
+        });
+
+        after(async () => {
+            await rabbit.disconnect();
+        });
+
+        it('retrieves and parses a JSON message from a specified queue', async () => {
+            await rabbit.sendToQueue(queueName, originalMsg);
+
+            const consume = sandbox.spy(rabbit.consumeChannel, 'get');
+
+            const { msg, ack } = await rabbit.get(queueName);
+
+            expect(consume.calledWith(queueName)).to.be.true;
+
+            expect(msg).to.deep.equal(originalMsg);
+            ack();
+        });
+
+        it('provides an ack function', async () => {
+            await rabbit.sendToQueue(queueName, originalMsg);
+
+            const { ack } = await rabbit.get(queueName);
+
+            expect(ack).to.be.a('function');
+
+            const consumeAck = sandbox.spy(rabbit.consumeChannel, 'ack');
+
+            ack();
+
+            expect(consumeAck.called).to.be.true;
+        });
+
+        it('provides a nack function that accepts a requeue boolean', async () => {
+            await rabbit.sendToQueue(queueName, originalMsg);
+
+            const { nack } = await rabbit.get(queueName);
+
+            expect(nack).to.be.a('function');
+
+            const consumeNack = sandbox.spy(rabbit.consumeChannel, 'nack');
+
+            // This is requeue=true by default;
+            nack();
+
+            // The consume channel's nack function should have the requeue option as true
+            expect(consumeNack.args[0][2]).to.be.true;
+
+            await sleep(200);
+
+            const { nack: secondNack } = await rabbit.get(queueName);
+
+            expect(secondNack).to.be.a('function');
+
+            secondNack(false);
+
+            // The consume channel's nack function should have the requeue option as true
+            expect(consumeNack.args[1][2]).to.be.false;
         });
     });
 });
