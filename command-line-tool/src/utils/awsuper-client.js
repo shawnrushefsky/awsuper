@@ -20,7 +20,8 @@ const client = axios.create({
     headers: {
         'Authorization': `Bearer ${config.token}`,
         'Content-Type': 'application/json'
-    }
+    },
+    validateStatus: status => !!status
 });
 
 async function get(url) {
@@ -53,6 +54,22 @@ async function describeInstance(stackName, layerName, hostName) {
     return await get(`/stacks/${stackName}/layers/${layerName}/instances/${hostName}`);
 }
 
+async function doTask(task, body) {
+    let res = await client.post(`/tasks/${task}`, body);
+
+    return res.data;
+}
+
+async function checkTask(task, id) {
+    return await get(`/tasks/${task}/${id}`);
+}
+
+async function cancelTask(task, id) {
+    let res = await client.delete(`/tasks/${task}/${id}`);
+
+    return res.data;
+}
+
 module.exports = {
     client,
     getAllStacks,
@@ -60,5 +77,8 @@ module.exports = {
     getLayersInStack,
     describeLayer,
     getInstancesInLayer,
-    describeInstance
+    describeInstance,
+    doTask,
+    checkTask,
+    cancelTask
 };
