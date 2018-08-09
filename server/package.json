@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "LOG_LEVEL=fatal APP_ENV=test mocha $(find tests -name '*-tests.js')"
+    "test": "LOG_LEVEL=fatal APP_ENV=local mocha $(find tests -name '*-tests.js')"
   },
   "repository": {
     "type": "git",
