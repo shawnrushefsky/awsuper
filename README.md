@@ -105,7 +105,47 @@ module.exports = {
 }
 ```
 
-Beyond that, your task can do virtually anything you achievable with Node. Because your task will be running in context of the server, you do have access to convenience utilities:
+Beyond that, your task can do virtually anything you achievable with Node. Because your task will be running in context of the server, you do have access to convenience utilities.
+
+### Task
+
+When a task is enqueued, it gets executed by this function.
+
+#### msg
+This will always take the form `{ _id: TaskID }`.
+
+In order to retrieve the rest of the the task, you should use `await Model.findById`.
+
+#### ack
+Once your task has fully executed correctly, you should acknowledge it like:
+
+```javascript
+return ack();
+```
+
+#### nack(requeue=true)
+If you are unable to complete the execution of a task, and you want to try again, use:
+
+```javascript
+return nack();
+
+// is equivalent to
+return nack(true);
+```
+
+If you are unable to complete the execution of a task, and you want to give up:
+
+```javascript
+return nack(false);
+```
+
+### Model
+
+You must construct a [mongoose.js Model](http://mongoosejs.com/docs/models.html) that represents that data model required for your task. This model will be used to validate incoming JSON bodies through the provided endpoints, and of course you can use it within your task to make updates to documents as your task runs. When naming your model, please name it identically to your directory name, to avoid collisions between different tasks.
+
+### Cancel
+
+This is a function that takes an `_id` for your mongo collection. You should specify whatever needs to happen to make your task cancel in this code block. One way to do it is to set `{status: 'CANCELLED'}` on the document. This requires periodic status checks from within your task to cease doing things if the status has become `CANCELLED`.
 
 ### Utilities
 
@@ -160,14 +200,6 @@ const { getInstanceByID } = require('../../utils/instance');
 let instance = await getInstanceByID(InstanceId);
 // Instance{}
 ```
-
-### Model
-
-You must construct a mongoose.js Model that represents that data model required for your task. This model will be used to validate incoming JSON bodies through the provided endpoints, and of course you can use it within your task to make updates to documents as your task runs.
-
-### Cancel
-
-This is a function that takes an `_id` for your mongo collection. You should specify whatever needs to happen to make your task cancel in this code block. One way to do it is to set `{status: 'CANCELLED'}` on the document. This requires periodic status checks from within your task to cease doing things if the status has become `CANCELLED`.
 
 # Endpoints
 

@@ -64,4 +64,4 @@ const LayerRollingRestart = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('LayerRollingRestart', LayerRollingRestart);
+module.exports = mongoose.model('layer-rolling-restart', LayerRollingRestart);
