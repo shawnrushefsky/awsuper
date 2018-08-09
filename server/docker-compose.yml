@@ -6,7 +6,7 @@ services:
     image: awsuper
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     ports: 
       - "4242:4242"
     volumes:

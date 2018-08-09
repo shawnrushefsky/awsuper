@@ -25,4 +25,4 @@ COPY . .
 
 CMD service rabbitmq-server start \
     && service mongodb start \
-    && npm start
+    && tail -f /var/log/rabbitmq/*.log /var/log/mongodb/mongodb.log
