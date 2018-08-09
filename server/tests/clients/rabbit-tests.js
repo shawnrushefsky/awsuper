@@ -226,4 +226,88 @@ describe('Rabbit Client', () => {
             expect(consumeNack.args[1][2]).to.be.false;
         });
     });
+
+    describe('consume', () => {
+        const queueName = 'testQueue';
+        const originalMsg = { key: 'value' };
+
+        before(async () => {
+            await rabbit.connect();
+        });
+
+        beforeEach(async () => {
+            // Ensure we start from a fresh queue
+            await rabbit.publishChannel.deleteQueue(queueName);
+            delete rabbit.assertedQueues[queueName];
+        });
+
+        after(async () => {
+            await rabbit.disconnect();
+        });
+
+        it('uses maybeAssertQueue to ensure queue existence', async () => {
+            const maybe = sandbox.spy(rabbit, 'maybeAssertQueue');
+
+            await rabbit.consume(queueName);
+
+            expect(maybe.calledWithExactly(queueName)).to.be.true;
+        });
+
+        it('passes a parsed json message to the consumer', (done) => {
+            rabbit.sendToQueue(queueName, originalMsg);
+
+            rabbit.consume(queueName, async (msg, ack, nack) => {
+                expect(msg).to.deep.equal(originalMsg);
+
+                ack();
+                done();
+            });
+        });
+
+        it('passes an ack function to the consumer', (done) => {
+            rabbit.sendToQueue(queueName, originalMsg);
+
+            const ackSpy = sandbox.spy(rabbit.consumeChannel, 'ack');
+
+            rabbit.consume(queueName, async (msg, ack, nack) => {
+                expect(msg).to.deep.equal(originalMsg);
+
+                ack();
+
+                expect(ackSpy.called).to.be.true;
+                done();
+            });
+        });
+
+        it('passes a nack function to the consumer that accepts a requeue boolean', (done) => {
+            rabbit.sendToQueue(queueName, originalMsg);
+
+            const nackSpy = sandbox.spy(rabbit.consumeChannel, 'nack');
+
+            let msgCount = 0;
+
+            rabbit.consume(queueName, async (msg, ack, nack) => {
+                // The message should be the same each time.
+                expect(msg).to.deep.equal(originalMsg);
+
+                // nack with requeue=true (default) the first time
+                if (msgCount === 0) {
+                    nack();
+
+                    expect(nackSpy.args[msgCount][2]).to.be.true;
+                } else if (msgCount === 1) {
+                    nack(false);
+
+                    // The consume channel's nack function should have the requeue option as false
+                    expect(nackSpy.args[msgCount][2]).to.be.false;
+                    done();
+                } else {
+                    // This message should not be delivered a third time, because it was not requeued after number 2.
+                    expect.fail();
+                }
+
+                msgCount += 1;
+            });
+        });
+    });
 });
