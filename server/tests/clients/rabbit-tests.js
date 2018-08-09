@@ -110,4 +110,49 @@ describe('Rabbit Client', () => {
             expect(assertQueue.called).to.be.false;
         });
     });
+
+    describe('sendToQueue', () => {
+        before(async () => {
+            await rabbit.connect();
+        });
+
+        after(async () => {
+            await rabbit.disconnect();
+        });
+
+        it('uses maybeAssertQueue to ensure queue existence', async () => {
+            const maybeAssertQueue = sandbox.spy(rabbit, 'maybeAssertQueue');
+
+            const originalMsg = { key: 'value' };
+            const queueName = 'testQueue';
+
+            await rabbit.sendToQueue(queueName, originalMsg);
+
+            expect(maybeAssertQueue.calledOnceWithExactly(queueName)).to.be.true;
+
+            // Remove the message from the queue
+            const { ack } = await rabbit.get(queueName);
+            ack();
+        });
+
+        it('publishes a JSON object to the specified queue', async () => {
+            const originalMsg = { key: 'value' };
+            const queueName = 'testQueue';
+
+            // Ensure we start from a fresh queue
+            await rabbit.publishChannel.deleteQueue(queueName);
+            delete rabbit.assertedQueues[queueName];
+
+            const publish = sandbox.spy(rabbit.publishChannel, 'sendToQueue');
+
+            await rabbit.sendToQueue(queueName, originalMsg);
+
+            expect(publish.calledWith(queueName)).to.be.true;
+
+            const { msg, ack } = await rabbit.get(queueName);
+
+            expect(msg).to.deep.equal(originalMsg);
+            ack();
+        });
+    });
 });
