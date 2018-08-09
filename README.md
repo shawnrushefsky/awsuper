@@ -12,3 +12,19 @@ A containerized Webserver and accompanying Command Line tool for easily performi
 - [x] Command line tool should be installable through common package managers
 
 There is documentation for the server in the `server` directory, and documentation for the CLI in the `command-line-tool` directory.
+
+## Getting Started
+
+First, you'll want to deploy the server using docker. This is recommended to be done inside your AWS security group, though it can be done locally as well.
+
+```shell
+docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 shawnrushefsky/awsuper
+```
+
+Next, install the command line tool:
+
+```shell
+npm install -g awsuper
+```
+
+You're ready to go!
