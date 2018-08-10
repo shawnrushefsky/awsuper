@@ -2,6 +2,9 @@
 
 A containerized Webserver and accompanying Command Line tool for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.
 
+[Docker Hub](https://hub.docker.com/r/shawnrushefsky/awsuper/)
+[NPM](https://www.npmjs.com/package/awsuper)
+
 ### Goals
 
 - [x] Webserver should be natively deployable through docker
