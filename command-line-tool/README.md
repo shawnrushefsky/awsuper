@@ -10,6 +10,12 @@ You can install the command line tool conveniently through NPM:
 npm install -g awsuper
 ```
 
+Configure the command line tool to connect to the server:
+
+```shell
+awsuper setup
+```
+
 ## Use
 
 ### Describe

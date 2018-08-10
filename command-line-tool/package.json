@@ -1,6 +1,6 @@
 {
   "name": "awsuper",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A command line tool for conveniently using the awsuper-server",
   "main": "src/awsuper.js",
   "scripts": {
@@ -30,7 +30,8 @@
     "axios": "^0.18.0",
     "commander": "^2.15.1",
     "commander-completion": "^1.0.1",
-    "logger-nodejs": "^1.0.0"
+    "logger-nodejs": "^1.0.0",
+    "prompt": "^1.0.0"
   },
   "bin": {
     "awsuper": "src/awsuper.js"

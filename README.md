@@ -42,6 +42,12 @@ The command line tool requires the existence of a file `~/.awsuper` that include
 }
 ```
 
+You can create this file interactively by running
+
+```shell
+awsuper setup
+```
+
 Once this file is created, you're ready to go! Verify your installation by running
 
 ```shell
