@@ -21,10 +21,25 @@ First, you'll want to deploy the server using docker. This is recommended to be 
 docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 shawnrushefsky/awsuper
 ```
 
+This will output your auth token as it starts up. Save this for later.
+
 Next, install the command line tool:
 
 ```shell
 npm install -g awsuper
+```
+
+The command line tool requires the existence of a file `~/.awsuper` that includes some details about connecting to the AWSuper server. It should take this form:
+
+```json
+{
+    "token": "the token that your server spat out when it started up",
+    "server": {
+        "host": "localhost",
+        "port": 4242,
+        "protocol": "http"
+    }
+}
 ```
 
 You're ready to go!
