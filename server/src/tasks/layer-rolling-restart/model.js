@@ -18,11 +18,11 @@ const Instance = new mongoose.Schema({
 });
 
 const LayerRollingRestart = new mongoose.Schema({
-    stackName: {
+    stack: {
         type: String,
         required: true
     },
-    layerName: {
+    layer: {
         type: String,
         required: true
     },

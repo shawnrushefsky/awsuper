@@ -246,16 +246,16 @@ Requires JSON body:
 
 ```javascript
 {
-    "stackName": "stack",
-    "layerName": "layer",
+    "stack": "stack",
+    "layer": "layer",
     "window": 1 // Optional. Default is 1
 }
 ```
 
 | Paramater | Default | Description |
 |-----------|---------|-------------|
-| stackName | None | The name of the stack
-| layerName | None | The name of the layer 
+| stack | None | The name of the stack
+| layer | None | The name of the layer 
 | window | 1 | This is how many instances should be restarted at a time
 
 This will return JSON:
@@ -265,8 +265,8 @@ This will return JSON:
     "window": 1,
     "status": "PENDING",
     "_id": "5b6b71dbe30e1f1ae3ff2e07",
-    "stackName": "stack",
-    "layerName": "layer",
+    "stack": "stack",
+    "layer": "layer",
     "instancesShutdown": [],
     "instancesStarted": [],
     "instancesOnline": [],
@@ -286,8 +286,8 @@ This will return JSON:
     "window": 1,
     "status": "RUNNING",
     "_id": "5b6b71dbe30e1f1ae3ff2e07",
-    "stackName": "stack",
-    "layerName": "layer",
+    "stack": "stack",
+    "layer": "layer",
     "instancesShutdown": [],
     "instancesStarted": [],
     "instancesOnline": [],

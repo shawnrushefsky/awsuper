@@ -13,7 +13,7 @@ const Model = require('./model');
  */
 async function rollingRestart(msg, ack, nack) {
     let task = await Model.findById(msg._id);
-    const { stackName, layerName, window, status: originalStatus } = task;
+    const { stack, layer, window, status: originalStatus } = task;
 
     if (originalStatus === 'COMPLETED' || originalStatus === 'FAILED' || originalStatus === 'CANCELLED') {
         return nack(false);
@@ -21,7 +21,7 @@ async function rollingRestart(msg, ack, nack) {
 
     await Model.findByIdAndUpdate(msg._id, { status: 'RUNNING' });
 
-    let { error, instances } = await listInstancesFromNames(stackName, layerName);
+    let { error, instances } = await listInstancesFromNames(stack, layer);
 
     if (error) {
         log.error(error);
@@ -42,7 +42,7 @@ async function rollingRestart(msg, ack, nack) {
         log.info(`Resuming layer-rolling-restart: ${task._id}`);
     }
 
-    log.info(`Restarting ${instances.length} instances in ${stackName}/${layerName}, ${window} at a time.`);
+    log.info(`Restarting ${instances.length} instances in ${stack}/${layer}, ${window} at a time.`);
 
     // Go through the instances and restart them {window} at a time with an async process
     for (let i = 0; i < instances.length; i += window) {
@@ -70,7 +70,7 @@ async function rollingRestart(msg, ack, nack) {
             return nack(false);
         }
 
-        log.info(`Rolling Restarter for ${stackName}/${layerName}: ${restarted.length} / ${instances.length} restarted.`);
+        log.info(`Rolling Restarter for ${stack}/${layer}: ${restarted.length} / ${instances.length} restarted.`);
     }
 
     await Model.findByIdAndUpdate(msg._id, { status: 'COMPLETED' });
