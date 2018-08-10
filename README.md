@@ -37,9 +37,15 @@ The command line tool requires the existence of a file `~/.awsuper` that include
     "server": {
         "host": "localhost",
         "port": 4242,
-        "protocol": "http"
+        "protocol": "http" // You should definitely put https in front of this server in production
     }
 }
 ```
 
-You're ready to go!
+Once this file is created, you're ready to go! Verify your installation by running
+
+```shell
+awsuper tasks
+```
+
+This will tell you the available tasks that are installed on your server.
