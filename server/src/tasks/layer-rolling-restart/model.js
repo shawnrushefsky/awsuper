@@ -56,7 +56,7 @@ const LayerRollingRestart = new mongoose.Schema({
         },
         default: 'PENDING'
     },
-    errors: {
+    exceptions: {
         type: [String],
         required: false
     }

@@ -25,7 +25,7 @@ async function rollingRestart(msg, ack, nack) {
 
     if (error) {
         log.error(error);
-        await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { errors: error } });
+        await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { exceptions: error } });
         return nack(false);
     }
 
@@ -67,7 +67,7 @@ async function rollingRestart(msg, ack, nack) {
             restarted = restarted.concat(awaitingRestart);
         } catch (e) {
             log.error(e);
-            await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { errors: e } });
+            await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { exceptions: e } });
             return nack(false);
         }
 
