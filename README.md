@@ -55,3 +55,7 @@ awsuper tasks
 ```
 
 This will tell you the available tasks that are installed on your server.
+
+## Plugins
+
+AWSuper supports plugins called `Tasks`. Learn how to create them [here.](https://github.com/shawnrushefsky/awsuper/tree/master/server#tasks)
