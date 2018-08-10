@@ -110,7 +110,7 @@ When a task is enqueued, it gets executed by this function. Your function should
 
 ```javascript
 async function(msg, ack, nack) {
-    let task = Model.findById(msg._id);
+    let task = await Model.findById(msg._id);
 
     // Do some stuff
 
