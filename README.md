@@ -31,7 +31,7 @@ npm install -g awsuper
 
 The command line tool requires the existence of a file `~/.awsuper` that includes some details about connecting to the AWSuper server. It should take this form:
 
-```json
+```javascript
 {
     "token": "the token that your server spat out when it started up",
     "server": {
