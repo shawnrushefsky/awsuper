@@ -7,6 +7,8 @@ const {
     coerceDate
 } = require('../../src/utils/coerce');
 
+const { ObjectId } = require('mongoose').Types;
+
 const chai = require('chai');
 const { expect } = chai;
 
@@ -93,8 +95,34 @@ describe.only('Type Coercion', () => {
     });
 
     describe('coerceObjectId', () => {
-        it('returns an ObjectId for a string which can be cast to an ObjectId');
+        it('returns an ObjectId for a string which can be cast to an ObjectId', () => {
+            let id = new ObjectId;
 
-        it('returns an error in all other cases');
+            let { value, error } = coerceObjectId(field, id.toString());
+            expect(value.toString()).to.equal(id.toString());
+            expect(error).to.be.undefined;
+        });
+
+        it('returns an error in all other cases', () => {
+            // other strings
+            let { value: strVal, error: strErr } = coerceObjectId(field, 'maybe');
+            expect(strVal).to.be.undefined;
+            expect(strErr).to.equal(`Expected type:ObjectId for field ${field}`);
+
+            // numbers
+            let { value: numVal, error: numErr } = coerceObjectId(field, 27);
+            expect(numVal).to.be.undefined;
+            expect(numErr).to.equal(`Expected type:ObjectId for field ${field}`);
+
+            // arrays
+            let { value: arrVal, error: arrErr } = coerceObjectId(field, [27, 'something']);
+            expect(arrVal).to.be.undefined;
+            expect(arrErr).to.equal(`Expected type:ObjectId for field ${field}`);
+
+            // objects
+            let { value: objVal, error: objErr } = coerceObjectId(field, { key: 'value' });
+            expect(objVal).to.be.undefined;
+            expect(objErr).to.equal(`Expected type:ObjectId for field ${field}`);
+        });
     });
 });

@@ -62,9 +62,16 @@ function coerceNumber(key, value) {
 }
 
 function coerceObjectId(key, value) {
-    try {
-        return { value: ObjectId(value) };
-    } catch (e) {
+    if (ObjectId.isValid(value)) {
+        let id = ObjectId(value);
+
+        // A number can be cast to an ObjectId, but we don't want to for this purpose
+        if (id.toString() === value) {
+            return { value: id };
+        } else {
+            return { error: `Expected type:ObjectId for field ${key}` };
+        }
+    } else {
         return { error: `Expected type:ObjectId for field ${key}` };
     }
 }
