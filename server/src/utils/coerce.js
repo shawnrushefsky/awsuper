@@ -54,7 +54,7 @@ function coerceBoolean(key, value) {
 }
 
 function coerceNumber(key, value) {
-    if (isNaN(key)) {
+    if (isNaN(value)) {
         return { error: `Expected type:Number for field ${key}` };
     } else {
         return { value: Number(value) };

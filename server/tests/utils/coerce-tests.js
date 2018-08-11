@@ -62,7 +62,38 @@ describe.only('Type Coercion', () => {
     });
 
     describe('coerceNumber', () => {
-        it('returns a number for a string that is a number');
+        it('returns a number for a string that is a number', () => {
+            // Works with integers
+            let { value: intVal, error: intErr } = coerceNumber(field, '123');
+            expect(intVal).to.equal(123);
+            expect(intErr).to.be.undefined;
+
+            // Works with floating point numbers
+            let { value: floatVal, error: floatErr } = coerceNumber(field, '123.456');
+            expect(floatVal).to.equal(123.456);
+            expect(floatErr).to.be.undefined;
+        });
+
+        it('returns an error in all other cases', () => {
+            // other strings
+            let { value: strVal, error: strErr } = coerceNumber(field, 'maybe');
+            expect(strVal).to.be.undefined;
+            expect(strErr).to.equal(`Expected type:Number for field ${field}`);
+
+            // arrays
+            let { value: arrVal, error: arrErr } = coerceNumber(field, [27, 'something']);
+            expect(arrVal).to.be.undefined;
+            expect(arrErr).to.equal(`Expected type:Number for field ${field}`);
+
+            // objects
+            let { value: objVal, error: objErr } = coerceNumber(field, { key: 'value' });
+            expect(objVal).to.be.undefined;
+            expect(objErr).to.equal(`Expected type:Number for field ${field}`);
+        });
+    });
+
+    describe('coerceObjectId', () => {
+        it('returns an ObjectId for a string which can be cast to an ObjectId');
 
         it('returns an error in all other cases');
     });
