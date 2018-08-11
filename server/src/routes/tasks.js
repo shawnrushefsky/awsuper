@@ -64,9 +64,17 @@ function loadTasks() {
             // This endpoint queries the database for tasks based on URL Query Parameters
             router.get(`/${taskName}`, queryParamsMiddleware(task.model), async (req, res) => {
                 try {
-                    const tasks = await task.model.find(req.mongoQuery);
+                    const num_found = await task.model.count(req.mongoQuery);
 
-                    return res.status(200).json(tasks);
+                    let query = task.model.find(req.mongoQuery)
+                        .skip(req.skip)
+                        .limit(req.limit);
+
+                    req.sort && query.sort(req.sort);
+
+                    let data = await query;
+
+                    return res.status(200).json({ num_found, data });
                 } catch (e) {
                     log.error(e);
                     return res.status(500).json({

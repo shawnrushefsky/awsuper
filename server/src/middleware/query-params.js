@@ -4,18 +4,67 @@ const moment = require('moment');
 const { coerceValue, DATE_FORMATS } = require('../utils/coerce');
 const { Types } = mongoose.Schema;
 
+const DEFAULT_PARAMS = { page: 1, limit: 10 };
+const MAX_LIMIT = 50;
+
+const SORT_DIR_MAP = {
+    'asc': 1,
+    'ascending': 1,
+    'desc': -1,
+    'descending': -1
+};
+
+const SORT_DIRECTIONS = Object.keys(SORT_DIR_MAP).join(', ');
+
 /**
  * This will return a middleware that parses query parameters into a mongo find query
  * that corresponds to the provided model. It handles type conversion, $or, and range queries.
  * @param {mongoose.Model} model
  */
 function queryParamsMiddleware(model) {
-    return async (req, res, next) => {
+    return (req, res, next) => {
         const { query: rawQuery } = req;
 
         let query = {};
         let errors = [];
 
+        let { sort, limit, page } = { ...DEFAULT_PARAMS, ...rawQuery };
+
+        /**
+         * ?sort[key]=asc will sort by key, in ascending order
+         */
+        if (sort) {
+            let { value, errors: sortErrors } = getSortQuery(sort);
+
+            if (sortErrors) {
+                errors = errors.concat(sortErrors);
+            } else {
+                req.sort = value;
+            }
+
+            delete rawQuery.sort;
+        }
+
+        // This is for how many results to return in one request
+        if (isNaN(limit) || limit < 1) {
+            errors.push('limit must be a positive integer.');
+        } else {
+            // Set limit to the lower of the provided number, or the max limit
+            req.limit = Math.min(parseInt(limit), MAX_LIMIT);
+        }
+        delete rawQuery.limit;
+
+        // This is interpreted as database offset when querying, to allow pagination of results
+        if (isNaN(page) || page < 0) {
+            errors.push('page must be an integer >= 0');
+        } else {
+            page = parseInt(page);
+
+            req.skip = (page - 1) * req.limit;
+        }
+        delete rawQuery.page;
+
+        // Process the remaining query parameters
         for (let key in rawQuery) {
             let rawValue = rawQuery[key];
             if (_.isString(rawValue)) {
@@ -50,6 +99,11 @@ function queryParamsMiddleware(model) {
                  */
                 const fieldType = model.schema.paths[key];
 
+                if (!fieldType) {
+                    errors.push(`${key} is not a valid field`);
+                    continue;
+                }
+
                 let queryFunc;
 
                 if (fieldType === Types.Date) {
@@ -65,6 +119,8 @@ function queryParamsMiddleware(model) {
                 } else {
                     query[key] = value;
                 }
+            } else {
+                errors.push(`Could not parse query for field: ${key}`);
             }
         }
 
@@ -144,8 +200,37 @@ function getRangeQuery(key, rawValue, model) {
     return { value: query };
 }
 
+function getSortQuery(sort, model) {
+    let sortOpts = {};
+    let errors = [];
+
+    for (let field in sort) {
+        const fieldType = model.schema.paths[field];
+
+        if (!fieldType) {
+            errors.push(`${field} is not a valid field`);
+            continue;
+        }
+        let dirStr = sort[field];
+        let mongoDir = SORT_DIR_MAP[dirStr];
+
+        if (mongoDir) {
+            sortOpts[field] = mongoDir;
+        } else {
+            errors.push(`${dirStr} is not a valid sort direction. Use one of: ${SORT_DIRECTIONS}`);
+        }
+    }
+
+    if (errors.length > 0) {
+        return { errors };
+    }
+
+    return { value: sortOpts };
+}
+
 module.exports = {
     queryParamsMiddleware,
     getDateRangeQuery,
-    getRangeQuery
+    getRangeQuery,
+    getSortQuery
 };
