@@ -3,8 +3,9 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const rabbit = require('../clients/rabbit');
+const { queryParamsMiddleware } = require('../middleware/query-params');
 const log = require('../utils/logger');
-const { parsePersistError, errorTypes } = require('../utils/errors');
+const { parsePersistError, errorTypes, messages } = require('../utils/errors');
 
 const taskDir = path.join(__dirname, '..', 'tasks');
 
@@ -23,6 +24,7 @@ function loadTasks() {
         try {
             let task = require(taskPath);
 
+            // This endpoint starts a new task
             router.post(`/${taskName}`, async (req, res) => {
                 try {
                     const createdTask = await task.model.create(req.body);
@@ -41,6 +43,7 @@ function loadTasks() {
                 }
             });
 
+            // This endpoint retrieves 1 task by ID
             router.get(`/${taskName}/:id`, async (req, res) => {
                 try {
                     const retrievedTask = await task.model.findById(req.params.id);
@@ -53,11 +56,26 @@ function loadTasks() {
                 } catch (e) {
                     log.error(e);
                     return res.status(500).json({
-                        'errors': ['An internal error was encountered while processing your request.']
+                        errors: [messages.INTERNAL_ERROR]
                     });
                 }
             });
 
+            // This endpoint queries the database for tasks based on URL Query Parameters
+            router.get(`/${taskName}`, queryParamsMiddleware(task.model), async (req, res) => {
+                try {
+                    const tasks = await task.model.find(req.mongoQuery);
+
+                    return res.status(200).json(tasks);
+                } catch (e) {
+                    log.error(e);
+                    return res.status(500).json({
+                        errors: [messages.INTERNAL_ERROR]
+                    });
+                }
+            });
+
+            // This endpoint cancels a running task
             router.delete(`/${taskName}/:id`, async (req, res) => {
                 try {
                     const cancelledTask = await task.cancel(req.params.id);
@@ -74,6 +92,7 @@ function loadTasks() {
                 }
             });
 
+            // We also need set up the consumer to actually perform created tasks
             rabbit.consume(taskName, task.task);
             log.info(`Task Loaded: ${taskName}`);
         } catch (e) {

@@ -2,6 +2,7 @@ const log = require('../utils/logger');
 
 const CLIENT = 'client';
 const INTERNAL = 'internal';
+const INTERNAL_ERROR = 'An internal error was encountered while processing your request.';
 
 /**
  * parses the error provided by properties that exist on it and returns an array of coherent error messages that
@@ -43,5 +44,6 @@ function parsePersistError(e) {
 
 module.exports = {
     parsePersistError,
-    errorTypes: { CLIENT, INTERNAL }
+    errorTypes: { CLIENT, INTERNAL },
+    messages: { INTERNAL: INTERNAL_ERROR }
 };
