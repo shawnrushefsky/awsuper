@@ -8,14 +8,25 @@ const {
 } = require('../../src/utils/coerce');
 
 const moment = require('moment');
-const { ObjectId } = require('mongoose').Types;
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 const chai = require('chai');
 const { expect } = chai;
 
 const field = 'testfield';
 
-describe.only('Type Coercion', () => {
+const schema = new mongoose.Schema({
+    strField: String,
+    numField: Number,
+    boolField: Boolean,
+    dateField: Date,
+    mixedField: mongoose.Schema.Types.Mixed
+});
+
+const model = mongoose.model('test', schema);
+
+describe('Type Coercion', () => {
     describe('coerceBoolean', () => {
         it('returns a boolean true for the string "true"', () => {
             let { value, error } = coerceBoolean(field, 'true');
@@ -195,7 +206,47 @@ describe.only('Type Coercion', () => {
             let { value: objVal, error: objErr } = coerceDate(field, { key: 'value' });
             expect(objVal).to.be.undefined;
             expect(objErr).to.equal(`Expected type:Date for field ${field}`);
+        });
+    });
 
+    describe('coerceValue', () => {
+        it('Returns a String value for a field is that is String type', () => {
+            let { value, error } = coerceValue('strField', 'some string', model);
+            expect(value).to.equal('some string');
+            expect(error).to.be.undefined;
+        });
+
+        it('Returns an unmodified value for a field is that is Mixed type', () => {
+            let rawValue = { key: 'value' };
+            let { value, error } = coerceValue('mixedField', rawValue, model);
+            expect(value).to.deep.equal(rawValue);
+            expect(error).to.be.undefined;
+        });
+
+        it('Returns a Number value for a field is that is Number type', () => {
+            let { value, error } = coerceValue('numField', '123.456', model);
+            expect(value).to.equal(123.456);
+            expect(error).to.be.undefined;
+        });
+
+        it('Returns a Boolean value for a field is that is Boolean type', () => {
+            let { value, error } = coerceValue('boolField', 'true', model);
+            expect(value).to.be.true;
+            expect(error).to.be.undefined;
+        });
+
+        it('Returns an ObjectId value for a field is that is ObjectId type', () => {
+            let id = new ObjectId();
+            let { value, error } = coerceValue('_id', id.toString(), model);
+            expect(ObjectId.isValid(value)).to.be.true;
+            expect(value.toString()).to.equal(id.toString());
+            expect(error).to.be.undefined;
+        });
+
+        it('returns an error if the field does not exist', () => {
+            let { value, error } = coerceValue('superfake', 'alsofake', model);
+            expect(value).to.be.undefined;
+            expect(error).to.equal('superfake is not a valid field.');
         });
     });
 });
