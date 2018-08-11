@@ -64,6 +64,12 @@ async function checkTask(task, id) {
     return await get(`/tasks/${task}/${id}`);
 }
 
+async function queryTasks(task, params) {
+    let res = await client.get(`/tasks/${task}`, { params });
+
+    return res.data;
+}
+
 async function cancelTask(task, id) {
     let res = await client.delete(`/tasks/${task}/${id}`);
 
@@ -84,6 +90,7 @@ module.exports = {
     describeInstance,
     doTask,
     checkTask,
+    queryTasks,
     cancelTask,
     listAllTasks
 };

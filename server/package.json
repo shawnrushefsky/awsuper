@@ -1,6 +1,6 @@
 {
   "name": "awssuper-server",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "A webserver for easily performing and automating long-running tasks in AWS, such as rolling green/blue updates, EBS snapshots, etc.",
   "main": "src/index.js",
   "scripts": {
