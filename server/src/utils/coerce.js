@@ -42,6 +42,8 @@ function coerceValue(key, value, model) {
 }
 
 function coerceBoolean(key, value) {
+    value = value.toString().toLowerCase();
+
     if (value === 'false') {
         return { value: false };
     } else if (value === 'true') {

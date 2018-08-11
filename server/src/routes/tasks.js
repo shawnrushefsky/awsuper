@@ -64,7 +64,16 @@ function loadTasks() {
             // This endpoint queries the database for tasks based on URL Query Parameters
             router.get(`/${taskName}`, queryParamsMiddleware(task.model), async (req, res) => {
                 try {
-                    const num_found = await task.model.count(req.mongoQuery);
+                    let count;
+
+                    if (Object.keys(req.mongoQuery).length === 0) {
+                        // This is faster for getting the total count of the entire collection
+                        count = task.model.estimatedDocumentCount();
+                    } else {
+                        count = task.model.countDocuments(req.mongoQuery);
+                    }
+
+                    const num_found = await count;
 
                     let query = task.model.find(req.mongoQuery)
                         .skip(req.skip)
