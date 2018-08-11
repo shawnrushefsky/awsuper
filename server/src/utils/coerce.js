@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { Types } = mongoose.Schema;
 const { ObjectId } = mongoose.Types;
 const moment = require('moment');
+const _ = require('lodash');
 
 // These are the formats we will be accepting dates for query parameters
 const DATE_FORMATS = [
@@ -9,7 +10,10 @@ const DATE_FORMATS = [
     'MM-DD-YYYY HH',
     'MM-DD-YYYY HH:mm',
     'MM-DD-YYYY HH:mm:ss',
-    'YYYY-MM-DD HH:mm:ss'
+    'YYYY-MM-DD HH:mm:ss',
+    'YYYY-MM-DD HH:mm',
+    'YYYY-MM-DD HH',
+    'YYYY-MM-DD'
 ];
 
 /**
@@ -85,8 +89,8 @@ function coerceObjectId(key, value) {
 function coerceDate(key, value) {
     let date = moment(value, DATE_FORMATS);
 
-    if (!date.isValid()) {
-        return { error: `Expected type:Datetime for field ${key}` };
+    if (!date.isValid() || Array.isArray(value) || _.isPlainObject(value)) {
+        return { error: `Expected type:Date for field ${key}` };
     }
 
     let actualResolution;
