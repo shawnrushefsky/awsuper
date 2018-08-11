@@ -9,9 +9,9 @@ const { Types } = mongoose.Schema;
  * that corresponds to the provided model. It handles type conversion, $or, and range queries.
  * @param {mongoose.Model} model
  */
-async function queryParamsMiddleware(model) {
+function queryParamsMiddleware(model) {
     return async (req, res, next) => {
-        const { query: rawQuery } = req.query;
+        const { query: rawQuery } = req;
 
         let query = {};
         let errors = [];
