@@ -3,6 +3,9 @@ const log = require('../utils/logger');
 const { sleep } = require('../utils/common');
 const config = require('../../config');
 const { inspect } = require('util');
+const moment = require('moment');
+
+const SCHEDULER = 'scheduler';
 
 class Rabbit {
     constructor() {
@@ -58,6 +61,8 @@ class Rabbit {
                 this.connected = true;
                 await this.setUpConsumeChannel(options);
                 await this.setUpPublishChannel(options);
+
+                await this.establishDelayedExchange();
 
                 log.info('RabbitMQ Client - Connected.');
             } catch (e) {
@@ -149,12 +154,24 @@ class Rabbit {
         });
     }
 
+    async establishDelayedExchange() {
+        const opts = {
+            arguments: { 'x-delayed-type': 'direct' }
+        };
+
+        await this.publishChannel.assertExchange(SCHEDULER, 'x-delayed-message', opts);
+    }
+
     async maybeAssertQueue(queueName) {
         const { publishChannel } = await this.connect();
 
         if (!this.assertedQueues[queueName]) {
             // If this client has never asserted this queue, go ahead and assert it to be safe.
             await publishChannel.assertQueue(queueName);
+
+            // We want to bind this queue to the scheduler exchange
+            await publishChannel.bindQueue(queueName, SCHEDULER, queueName);
+
             this.assertedQueues[queueName] = true;
         }
     }
@@ -173,6 +190,31 @@ class Rabbit {
         const serializedMsg = Buffer.from(JSON.stringify(msg));
 
         return await publishChannel.sendToQueue(queueName, serializedMsg, options);
+    }
+
+    /**
+     * Schedule a message to be delivered to its queue at a specified date in the future
+     * @param {*} queueName
+     * @param {*} msg
+     * @param {*} date moment object
+     */
+    async scheduledPublish(queueName, msg, date) {
+        // All publishes are made on the publish channel
+        const { publishChannel } = await this.connect();
+
+        await this.maybeAssertQueue(queueName);
+
+        const serializedMsg = Buffer.from(JSON.stringify(msg));
+
+        const now = moment();
+
+        // The delay should be either date - now, or 0 if date is in the past
+        const delay = Math.max(0, date.diff(now));
+
+        // Publish to the scheduler exchange with a delay
+        return await publishChannel.publish(SCHEDULER, queueName, serializedMsg, {
+            headers: { 'x-delay': delay }
+        });
     }
 
     /**

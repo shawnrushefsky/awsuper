@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const moment = require('moment');
 const rabbit = require('../clients/rabbit');
 const { queryParamsMiddleware } = require('../middleware/query-params');
 const log = require('../utils/logger');
+const { DATE_FORMATS } = require('../utils/coerce');
 const { parsePersistError, errorTypes, messages } = require('../utils/errors');
 
 const taskDir = path.join(__dirname, '..', 'tasks');
@@ -30,6 +32,35 @@ function loadTasks() {
                     const createdTask = await task.model.create(req.body);
 
                     await rabbit.sendToQueue(taskName, { _id: createdTask._id });
+
+                    return res.status(202).json(createdTask);
+                } catch (e) {
+                    let { errors, errorType } = parsePersistError(e);
+
+                    if (errorType === errorTypes.CLIENT) {
+                        return res.status(400).json( { errors });
+                    } else {
+                        return res.status(500).json( { errors });
+                    }
+                }
+            });
+
+            // This endpoint schedules a job for execution in the future
+            router.post(`/${taskName}/schedule`, async (req, res) => {
+                try {
+                    const { time: rawTime, job } = req.body;
+
+                    let time = moment(rawTime, DATE_FORMATS);
+
+                    if (!time.isValid()) {
+                        return res.status(400).json({ errors: [
+                            `${rawTime} is not a valid Date format. Use one of: ${DATE_FORMATS}`
+                        ] });
+                    }
+
+                    const createdTask = await task.model.create(job);
+
+                    await rabbit.scheduledPublish(taskName, { _id: createdTask._id }, time);
 
                     return res.status(202).json(createdTask);
                 } catch (e) {
