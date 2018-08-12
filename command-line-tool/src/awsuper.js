@@ -9,6 +9,7 @@ program
     .command('describe', 'Describe a Stack, Layer, or Instance').alias('d')
     .command ('list', 'List all Stacks, layers in a specified stack, or instances in a specified layer').alias('ls')
     .command('do', 'Start a new Task')
+    .command('schedule', 'Schedule a task for a future time')
     .command('check', 'Check a running Task')
     .command('query', 'Query tasks of a specified type')
     .command('cancel', 'Cancel a running Task')

@@ -60,6 +60,12 @@ async function doTask(task, body) {
     return res.data;
 }
 
+async function scheduleTask(task, job, time) {
+    let res = await client.post(`/tasks/${task}/schedule`, { time, job });
+
+    return res.data;
+}
+
 async function checkTask(task, id) {
     return await get(`/tasks/${task}/${id}`);
 }
@@ -89,6 +95,7 @@ module.exports = {
     getInstancesInLayer,
     describeInstance,
     doTask,
+    scheduleTask,
     checkTask,
     queryTasks,
     cancelTask,
