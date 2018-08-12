@@ -82,9 +82,62 @@ This endpoint retrieves a task from the database by ID. This lets you check up o
 
 ### `GET /tasks/<taskname>?key=value`
 
-> Not Yet Implemented
-
 This endpoint allows you to retrieve many instances of your task at once, and filter them with query parameters
+
+#### Query Parameters
+
+This endpoint supports query parameters. Query parameters provide advanced functionality for using the API, including range queries and sorting of returned results.
+
+##### Exact Matches
+
+You can query for records where a field exactly matches a query parameter. For date fields, this will match records
+where the value falls anywhere in the specified time frame:
+
+* `field_name=value` - For records where `field_name === value`
+
+**Examples**:
+
+* `?layer=api` - Matches records where `record.layer == "api"`
+
+* `?createdAt=2018-8-6 10` - Matches records where `record.createdAt` falls anywhere in the 10a hour of 2018-8-6
+
+* `?createdAt=2018-8-6` - Matches records where `record.createdAt` occurs anytime on 2018-8-6
+
+##### Range Queries
+
+You can query for records with values in a range. These range queries will work with any `Number` or `Date` field:
+
+* `field_name[min]=min_value` - For records where `field_name >= min_value`
+
+* `field_name[max]=max_value` - For records where `field_name <= max_value`
+
+**Examples**
+
+* `?totalInstances[min]=20&totalInstances[max]=120` - Matches records where `20 <= record.totalInstances <= 120`
+
+* `?totalInstances[min]=5000` - Matches records where `record.totalInstances >= 5000`
+
+##### Sorting
+
+You can use query parameters to sort the records that are returned by a query:
+
+* `sort[field_name]=direction` - Sorts returned records by the value of `field_name`, in a `direction` direction.
+
+**Examples**
+
+* `?sort[totalInstances]=desc` - Sorts the returned records by `record.totalInstances` in descending order (i.e. highest value of `totalInstances` is first).
+
+* `?sort[totalInstances]=asc` - Sorts the returned records by `record.totalInstances` in ascending order (i.e. lowest value of `totalInstances` first).
+
+##### OR queries
+
+You can search for documents that match one of several conditions:
+
+* `?field_name=value1&field_name=value2` - For records where `field_name` is either `value1` **OR** `value2`
+
+**Examples**
+
+* `?status=RUNNING&status=COMPLETED` - Matches records where `record.status` equals either `RUNNING` or `COMPLETED`
 
 ### `DELETE /tasks/<taskname>/:id`
 
@@ -293,6 +346,32 @@ This will return JSON:
     "instancesOnline": [],
     "date_created": "2018-08-08T22:42:35.644Z",
     "date_updated": "2018-08-08T22:42:35.644Z"
+}
+```
+
+## GET /tasks/layer-rolling-restarter?key=value
+
+This allows you to query the layer-rolling-restarter collection with [query parameters](#query-parameters)
+
+This will return JSON:
+
+```json
+{
+    "num_found": 100,
+    "data": [
+        {
+            "window": 1,
+            "status": "RUNNING",
+            "_id": "5b6b71dbe30e1f1ae3ff2e07",
+            "stack": "stack",
+            "layer": "layer",
+            "instancesShutdown": [],
+            "instancesStarted": [],
+            "instancesOnline": [],
+            "date_created": "2018-08-08T22:42:35.644Z",
+            "date_updated": "2018-08-08T22:42:35.644Z"
+        }
+    ]
 }
 ```
 

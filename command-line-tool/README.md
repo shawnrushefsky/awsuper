@@ -94,6 +94,22 @@ awsuper check <task-name> <id>
 awsuper check layer-rolling-restart 5b6cb5f4e161b303089da220
 ```
 
+### Query
+
+The `query` command will query the database for tasks of a specified type. This interacts with the [query parameters](https://github.com/shawnrushefsky/awsuper/tree/master/server#query-parameters) feature of the server.
+
+**Syntax**
+```shell
+awsuper query <task-name> [key=value...] [sort[key]=asc/desc] [limit=10] [page=1]
+```
+
+**Example**
+This will query the most recently updated 1 layer-rolling-restart for the `api` layer of the `mobile-app` stack.
+
+```shell
+awsuper query layer-rolling-restart stack=mobile-app layer=api sort[date_updated]=desc limit=1
+```
+
 ### Cancel
 
 The `check` command will cancel a running task.
