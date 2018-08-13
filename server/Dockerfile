@@ -8,7 +8,7 @@ RUN apt-get update && apt-get -y upgrade \
     && echo "deb https://dl.bintray.com/rabbitmq/debian stretch main" | tee /etc/apt/sources.list.d/bintray.rabbitmq.list \
     && apt-get update && apt-get install -y rabbitmq-server
 
-# Prepare the system to run couchdb
+# Prepare the system to run mongodb
 RUN apt-get install -y mongodb
 
 WORKDIR /data/db
