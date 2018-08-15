@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const moment = require('moment');
+const ms = require('ms');
 const rabbit = require('../clients/rabbit');
 const { queryParamsMiddleware } = require('../middleware/query-params');
 const log = require('../utils/logger');
@@ -26,41 +27,20 @@ function loadTasks() {
         try {
             let task = require(taskPath);
 
-            // This endpoint starts a new task
+            // This endpoint starts a new task, with an optional delay
             router.post(`/${taskName}`, async (req, res) => {
                 try {
                     const createdTask = await task.model.create(req.body);
 
-                    await rabbit.sendToQueue(taskName, { _id: createdTask._id });
+                    let { delay: rawDelay, when: rawWhen } = req.params;
 
-                    return res.status(202).json(createdTask);
-                } catch (e) {
-                    let { errors, errorType } = parsePersistError(e);
+                    let { delay, error } = getDelay(rawDelay, rawWhen);
 
-                    if (errorType === errorTypes.CLIENT) {
-                        return res.status(400).json( { errors });
-                    } else {
-                        return res.status(500).json( { errors });
-                    }
-                }
-            });
-
-            // This endpoint schedules a job for execution in the future
-            router.post(`/${taskName}/schedule`, async (req, res) => {
-                try {
-                    const { time: rawTime, job } = req.body;
-
-                    let time = moment(rawTime, DATE_FORMATS);
-
-                    if (!time.isValid()) {
-                        return res.status(400).json({ errors: [
-                            `${rawTime} is not a valid Date format. Use one of: ${DATE_FORMATS}`
-                        ] });
+                    if (error) {
+                        return res.status(400).json({ errors: [error] });
                     }
 
-                    const createdTask = await task.model.create(job);
-
-                    await rabbit.scheduledPublish(taskName, { _id: createdTask._id }, time);
+                    await rabbit.scheduledPublish(taskName, { _id: createdTask._id }, delay);
 
                     return res.status(202).json(createdTask);
                 } catch (e) {
@@ -147,6 +127,39 @@ function loadTasks() {
             log.error(e);
         }
     }
+}
+
+/**
+ * Calculates how long a delay should be based on 2 optional parameters.
+ * @param {*} delay Either a number of milliseconds, or a ms-compatible string like "1d"
+ * @param {*} when A string matching one of DATE_FORMATS
+ * @returns {Object} { delay, error }. Error will be undefined if no errors. Delay is a Number of
+ * milliseconds
+ */
+function getDelay(delay, when) {
+    if (delay) {
+        if (isNaN(delay)) {
+            try {
+                delay = ms(delay);
+            } catch (e) {
+                return { error: 'Invalid value for "delay" parameter' };
+            }
+        } else {
+            delay = Number(delay);
+        }
+    } else if (when) {
+        let actualWhen = moment(when, DATE_FORMATS);
+
+        if (!actualWhen.isValid()) {
+            return { error: `${when} is not a valid Date format. Use one of: ${DATE_FORMATS}` };
+        }
+
+        delay = actualWhen.diff(moment());
+    } else {
+        delay = 0;
+    }
+
+    return { delay };
 }
 
 loadTasks();

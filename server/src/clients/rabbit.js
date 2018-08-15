@@ -198,18 +198,13 @@ class Rabbit {
      * @param {*} msg
      * @param {*} date moment object
      */
-    async scheduledPublish(queueName, msg, date) {
+    async publish(queueName, msg, delay = 0) {
         // All publishes are made on the publish channel
         const { publishChannel } = await this.connect();
 
         await this.maybeAssertQueue(queueName);
 
         const serializedMsg = Buffer.from(JSON.stringify(msg));
-
-        const now = moment();
-
-        // The delay should be either date - now, or 0 if date is in the past
-        const delay = Math.max(0, date.diff(now));
 
         // Publish to the scheduler exchange with a delay
         return await publishChannel.publish(SCHEDULER, queueName, serializedMsg, {
