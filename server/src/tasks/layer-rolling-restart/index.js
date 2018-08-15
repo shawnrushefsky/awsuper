@@ -15,6 +15,14 @@ async function rollingRestart(msg, ack, nack) {
     let task = await Model.findById(msg._id);
     const { stack, layer, window, status: originalStatus } = task;
 
+    let runningTask = await Model.find({ stack, layer, status: 'RUNNING' }).limit(1);
+
+    if (runningTask) {
+        await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: {
+            exceptions: 'Rolling Restart already running for that stack and layer.'
+        } });
+    }
+
     if (originalStatus === 'COMPLETED' || originalStatus === 'FAILED' || originalStatus === 'CANCELLED') {
         return nack(false);
     }
