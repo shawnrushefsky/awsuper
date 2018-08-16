@@ -8,7 +8,9 @@ const awsuper = require('./utils/awsuper-client');
 program
     .usage('<task> [key=value...]')
     .arguments('<task> [options...]')
-    .action(async (task, opts) => {
+    .option('-d, --delay <delay>', 'How far in the future to perform this task. Example: 1d, 12h, 5m')
+    .option('-w, --when <datetime>', 'A specific date time in the future (relative to server-time) to perform the task')
+    .action(async (task, opts, cmd) => {
         let body = {};
 
         for (let pair of opts) {
@@ -16,7 +18,9 @@ program
             body[key] = value;
         }
 
-        let response = await awsuper.doTask(task, body);
+        let { delay, when } = cmd;
+
+        let response = await awsuper.delayTask(task, body, { delay, when });
 
         console.log(JSON.stringify(response, null, 4));
     })

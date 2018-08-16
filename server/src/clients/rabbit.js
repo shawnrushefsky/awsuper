@@ -194,9 +194,9 @@ class Rabbit {
 
     /**
      * Schedule a message to be delivered to its queue at a specified date in the future
-     * @param {*} queueName
-     * @param {*} msg
-     * @param {*} date moment object
+     * @param {String} queueName
+     * @param {Object} msg
+     * @param {Number} delay number of ms in the future to publish the message
      */
     async publish(queueName, msg, delay = 0) {
         // All publishes are made on the publish channel

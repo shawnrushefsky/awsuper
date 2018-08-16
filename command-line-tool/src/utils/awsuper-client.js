@@ -13,109 +13,105 @@ if (!fs.existsSync(configPath)) {
 
 const config = JSON.parse(fs.readFileSync(configPath).toString());
 
-const url = `${config.server.protocol}://${config.server.host}:${config.server.port}`;
+class AWSuperClient {
+    constructor(config) {
+        this.client = axios.create({
+            baseURL: `${config.server.protocol}://${config.server.host}:${config.server.port}`,
+            headers: {
+                'Authorization': `Bearer ${config.token}`,
+                'Content-Type': 'application/json'
+            },
+            validateStatus: status => !!status
+        });
+    }
 
-const client = axios.create({
-    baseURL: url,
-    headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json'
-    },
-    validateStatus: status => !!status
-});
+    async get(url, params) {
+        try {
+            let res = await this.client.get(url, params);
 
-async function get(url, params) {
-    try {
-        let res = await client.get(url, params);
+            return res.data;
+        } catch (e) {
+            return { errors: [e.message] };
+        }
+    }
 
-        return res.data;
-    } catch (e) {
-        return { errors: [e.message] };
+    async post(url, body, params) {
+        try {
+            let res = await this.client.post(url, body, params);
+
+            return res.data;
+        } catch (e) {
+            return { errors: [e.message] };
+        }
+    }
+
+    async delete(url, params) {
+        try {
+            let res = await this.client.delete(url, params);
+
+            return res.data;
+        } catch (e) {
+            return { errors: [e.message] };
+        }
+    }
+
+    async put(url, body, params) {
+        try {
+            let res = await this.client.put(url, body, params);
+
+            return res.data;
+        } catch (e) {
+            return { errors: [e.message] };
+        }
+    }
+
+    async getAllStacks() {
+        return await this.get('/stacks');
+    }
+
+    async describeStack(stackName) {
+        return await this.get(`/stacks/${stackName}`);
+    }
+
+    async getLayersInStack(stackName) {
+        return await this.get(`/stacks/${stackName}/layers`);
+    }
+
+    async describeLayer(stackName, layerName) {
+        return await this.get(`/stacks/${stackName}/layers/${layerName}`);
+    }
+
+    async getInstancesInLayer(stackName, layerName) {
+        return await this.get(`/stacks/${stackName}/layers/${layerName}/instances`);
+    }
+
+    async describeInstance(stackName, layerName, hostName) {
+        return await this.get(`/stacks/${stackName}/layers/${layerName}/instances/${hostName}`);
+    }
+
+    async doTask(task, body) {
+        return await this.post(`/tasks/${task}`, body);
+    }
+
+    async delayTask(task, job, params) {
+        return await this.post(`/tasks/${task}`, job, { params });
+    }
+
+    async checkTask(task, id) {
+        return await this.get(`/tasks/${task}/${id}`);
+    }
+
+    async queryTasks(task, params) {
+        return await this.get(`/tasks/${task}`, { params });
+    }
+
+    async cancelTask(task, id) {
+        return await this.delete(`/tasks/${task}/${id}`);
+    }
+
+    async listAllTasks() {
+        return await this.get('/tasks');
     }
 }
 
-async function post(url, body) {
-    try {
-        let res = await client.post(url, body);
-
-        return res.data;
-    } catch (e) {
-        return { errors: [e.message] };
-    }
-}
-
-async function clientDelete(url) {
-    try {
-        let res = await client.delete(url);
-
-        return res.data;
-    } catch (e) {
-        return { errors: [e.message] };
-    }
-}
-
-async function getAllStacks() {
-    return await get('/stacks');
-}
-
-async function describeStack(stackName) {
-    return await get(`/stacks/${stackName}`);
-}
-
-async function getLayersInStack(stackName) {
-    return await get(`/stacks/${stackName}/layers`);
-}
-
-async function describeLayer(stackName, layerName) {
-    return await get(`/stacks/${stackName}/layers/${layerName}`);
-}
-
-async function getInstancesInLayer(stackName, layerName) {
-    return await get(`/stacks/${stackName}/layers/${layerName}/instances`);
-}
-
-async function describeInstance(stackName, layerName, hostName) {
-    return await get(`/stacks/${stackName}/layers/${layerName}/instances/${hostName}`);
-}
-
-async function doTask(task, body) {
-    return await post(`/tasks/${task}`, body);
-}
-
-async function scheduleTask(task, job, time) {
-    let res = await client.post(`/tasks/${task}/schedule`, { time, job });
-
-    return res.data;
-}
-
-async function checkTask(task, id) {
-    return await get(`/tasks/${task}/${id}`);
-}
-
-async function queryTasks(task, params) {
-    return await get(`/tasks/${task}`, { params });
-}
-
-async function cancelTask(task, id) {
-    return await clientDelete(`/tasks/${task}/${id}`);
-}
-
-async function listAllTasks() {
-    return await get('/tasks');
-}
-
-module.exports = {
-    client,
-    getAllStacks,
-    describeStack,
-    getLayersInStack,
-    describeLayer,
-    getInstancesInLayer,
-    describeInstance,
-    doTask,
-    scheduleTask,
-    checkTask,
-    queryTasks,
-    cancelTask,
-    listAllTasks
-};
+module.exports = new AWSuperClient(config);
