@@ -74,6 +74,21 @@ Your task will automatically be assigned several endpoints, and it's name will b
 
 This endpoint accepts a JSON request body, and attempts to create a new document for it in MongoDB using the model provided by your task. Once the new document is created, it will enqueue the task in RabbitMQ, where it will be executed asynchronously.
 
+This endpoint supports two optional query parameters:
+
+`?delay=<ms>` - You can start a task at some point in the future by specifying either a number of milliseconds to delay, or an [ms](https://github.com/zeit/ms) compatible string.
+
+`?when=<datetime>` - You can start a task at a specific date and time in the future by providing a datetime string in one of these formats:
+
+* `MM-DD-YYYY`
+* `MM-DD-YYYY HH`,
+* `MM-DD-YYYY HH:mm`,
+* `MM-DD-YYYY HH:mm:ss`,
+* `YYYY-MM-DD HH:mm:ss`,
+* `YYYY-MM-DD HH:mm`,
+* `YYYY-MM-DD HH`,
+* `YYYY-MM-DD`
+
 This endpoint will return the created task.
 
 ### `GET /tasks/<taskname>/:id`
