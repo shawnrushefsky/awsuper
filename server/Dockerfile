@@ -17,7 +17,7 @@ RUN apt-get install -y unzip \
     && rm temp.zip \
     && rabbitmq-plugins --offline enable rabbitmq_delayed_message_exchange
 
-# Prepare the system to run couchdb
+# Prepare the system to run mongodb
 RUN apt-get install -y mongodb
 
 WORKDIR /data/db

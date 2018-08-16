@@ -24,10 +24,34 @@ const client = axios.create({
     validateStatus: status => !!status
 });
 
-async function get(url) {
-    let res = await client.get(url);
+async function get(url, params) {
+    try {
+        let res = await client.get(url, params);
 
-    return res.data;
+        return res.data;
+    } catch (e) {
+        return { errors: [e.message] };
+    }
+}
+
+async function post(url, body) {
+    try {
+        let res = await client.post(url, body);
+
+        return res.data;
+    } catch (e) {
+        return { errors: [e.message] };
+    }
+}
+
+async function clientDelete(url) {
+    try {
+        let res = await client.delete(url);
+
+        return res.data;
+    } catch (e) {
+        return { errors: [e.message] };
+    }
 }
 
 async function getAllStacks() {
@@ -55,9 +79,7 @@ async function describeInstance(stackName, layerName, hostName) {
 }
 
 async function doTask(task, body) {
-    let res = await client.post(`/tasks/${task}`, body);
-
-    return res.data;
+    return await post(`/tasks/${task}`, body);
 }
 
 async function scheduleTask(task, job, time) {
@@ -71,15 +93,11 @@ async function checkTask(task, id) {
 }
 
 async function queryTasks(task, params) {
-    let res = await client.get(`/tasks/${task}`, { params });
-
-    return res.data;
+    return await get(`/tasks/${task}`, { params });
 }
 
 async function cancelTask(task, id) {
-    let res = await client.delete(`/tasks/${task}/${id}`);
-
-    return res.data;
+    return await clientDelete(`/tasks/${task}/${id}`);
 }
 
 async function listAllTasks() {
