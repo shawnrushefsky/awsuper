@@ -72,12 +72,25 @@ The `do` command will execute a new Task.
 
 **Syntax**
 ```shell
-awsuper do <task-name> [key=value...]
+awsuper do [options] <task-name> [key=value...]
 ```
 
 **Example**
+This will immediately begin a layer-rolling-restart job for the OpsWorks Stack and Layer "my stack"/"my layer", restarting 2 machines at a time.
 ```shell
 awsuper do layer-rolling-restart stackName="my stack" layerName="my layer" window=2
+```
+
+**Example**
+This will schedule a layer-rolling-restart job for 2 weeks in the future
+```shell
+awsuper do --delay 2w layer-rolling-restart stackName="my stack" layerName=superduper
+```
+
+**Example**
+This will schedule a layer-rolling-restart job for October 1, 2018 at 10:35am
+```shell
+awsuper do --when "2018-10-1 10:35" layer-rolling-restart stackName="my stack" layerName=superduper
 ```
 
 ### Check
