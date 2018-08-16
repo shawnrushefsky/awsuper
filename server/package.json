@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "LOG_LEVEL=fatal APP_ENV=local ACCESS_KEY_ID=accesskeyid SECRET_ACESS_KEY=secretaccesskey REGION=us-east-1 mocha $(find tests -name '*-tests.js')",
-    "coverage": "LOG_LEVEL=fatal APP_ENV=local nyc mocha $(find tests -name '*-tests.js')"
+    "coverage": "LOG_LEVEL=fatal APP_ENV=local ACCESS_KEY_ID=accesskeyid SECRET_ACESS_KEY=secretaccesskey REGION=us-east-1 nyc mocha $(find tests -name '*-tests.js')"
   },
   "repository": {
     "type": "git",
