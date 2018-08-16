@@ -2,12 +2,7 @@ const jwtlib = require('jsonwebtoken');
 const config = require('../../config');
 
 /**
- * uses the user provided to generate a JWT.
- * The following member fields are added to the jwt:
- *   - id
- *   - isAdmin
- * @param {User} member the member to generate the JWT for
- * @param {String} expiresIn after how long the jwt should expire. Uses https://github.com/zeit/ms
+ * Generates a JWT out of your AWS credentials
  */
 function generateJWT() {
     let payload = {
@@ -24,7 +19,7 @@ function generateJWT() {
 }
 
 /**
- * decodes the JWT into a user
+ * decodes the JWT back into aws credentials.
  * @param {String} jwt the JWT to decode
  */
 function decodeJWT(jwt) {

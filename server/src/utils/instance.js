@@ -2,6 +2,11 @@ const { OpsWorks } = require('../clients/aws');
 const { getLayerWithOnlyNames } = require('./layer');
 const { mapByName } = require('./common');
 
+/**
+ * Gets all the instances from a given layer in given stack, using IDs
+ * @param {Object} params { stack: StackId, layer: LayerId }
+ * @returns {Array<Instance>}
+ */
 async function listInstances({ stack, layer }) {
     let params = {};
 
@@ -16,6 +21,12 @@ async function listInstances({ stack, layer }) {
     return instances.Instances;
 }
 
+/**
+ * Gets all the instances from a given layer in a given stack, using Names
+ * @param {String} stackName The Name of the Stack
+ * @param {String} layerName The Name of the Layer
+ * @returns {Object} { [error], instances, layer, stack }
+ */
 async function listInstancesFromNames(stackName, layerName) {
     let { error, layer, stack } = await getLayerWithOnlyNames(stackName, layerName);
 
@@ -28,6 +39,12 @@ async function listInstancesFromNames(stackName, layerName) {
     return { instances, layer, stack };
 }
 
+
+/**
+ * Gets an instance description for a particular instance
+ * @param {String} instanceID This is the OpsWorks InstanceId for the requested instance
+ * @returns {Instance}
+ */
 async function getInstanceByID(instanceID) {
     let params = {
         InstanceIds: [instanceID]
@@ -42,6 +59,12 @@ async function getInstanceByID(instanceID) {
     return null;
 }
 
+/**
+ * Get an Instance description using only names for stack, layer, and host
+ * @param {String} stackName The name of the stack
+ * @param {String} layerName The name of the layer
+ * @param {String|Number} hostName The hostname of the instance, or a number if the names match ${layername}${number}
+ */
 async function getInstanceByOnlyNames(stackName, layerName, hostName) {
     let { error, instances, layer, stack } = await listInstancesFromNames(stackName, layerName);
 
