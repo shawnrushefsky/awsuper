@@ -7,13 +7,23 @@ const Model = require('./model');
 
 /**
  * This performs a rolling restart of an opsworks layer
- * @param {String} stackName
- * @param {String} layerName
- * @param {Object} options
+ * @param {Object} msg { _id }
+ * @param {Function} ack acknowledge the message
+ * @param {Function(requeue)} nack negatively acknowledge the message. requeue=true by default
  */
 async function rollingRestart(msg, ack, nack) {
     let task = await Model.findById(msg._id);
     const { stack, layer, window, status: originalStatus } = task;
+
+    let runningTask = await Model.find({ stack, layer, status: 'RUNNING' }).limit(1);
+
+    if (runningTask.length > 0) {
+        await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: {
+            exceptions: 'Rolling Restart already running for that stack and layer.'
+        } });
+
+        return nack(false);
+    }
 
     if (originalStatus === 'COMPLETED' || originalStatus === 'FAILED' || originalStatus === 'CANCELLED') {
         return nack(false);
@@ -125,6 +135,10 @@ async function restartInstance(instance, recordID, offset='0s') {
     return instance;
 }
 
+/**
+ * Set the record to status: CANCELLED
+ * @param {String|ObjectId} recordID The _id of the record to cancel
+ */
 async function cancelTask(recordID) {
     const cancelledTask = await Model.findByIdAndUpdate(recordID, { $set: { status: 'CANCELLED' } }, { new: true });
 
