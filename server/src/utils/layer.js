@@ -34,6 +34,12 @@ async function getLayerByName(stackID, layerName) {
     return { error: `That stack does not container a Layer named ${layerName}` };
 }
 
+/**
+ * Get a layer description using the names of the layer and stack
+ * @param {String} stackName The name of the Stack
+ * @param {String} layerName The name of the Layer
+ * @returns {Object} { [error], layer, stack }
+ */
 async function getLayerWithOnlyNames(stackName, layerName) {
     let { error, stack } = await getStackByName(stackName);
 

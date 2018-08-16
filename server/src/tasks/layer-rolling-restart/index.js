@@ -15,31 +15,39 @@ async function rollingRestart(msg, ack, nack) {
     let task = await Model.findById(msg._id);
     const { stack, layer, window, status: originalStatus } = task;
 
+    // We do not want to ever run more than one rolling restart on a particular stack+layer
     let runningTask = await Model.find({ stack, layer, status: 'RUNNING' }).limit(1);
 
     if (runningTask.length > 0) {
+        // If there is already one of these running, then fail this one
         await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: {
             exceptions: 'Rolling Restart already running for that stack and layer.'
         } });
 
+        // And do not requeue it
         return nack(false);
     }
 
+    // If this task has actually already been finished, cancelled, or failed, discard this message
     if (originalStatus === 'COMPLETED' || originalStatus === 'FAILED' || originalStatus === 'CANCELLED') {
         return nack(false);
     }
 
+    // If we've made it this far, we're clear to start the task, so we'll mark it running
     await Model.findByIdAndUpdate(msg._id, { status: 'RUNNING' });
 
     let { error, instances } = await listInstancesFromNames(stack, layer);
 
+    // If the stack or layer don't exist, we'll have an error here
     if (error) {
         log.error(error);
+
+        // So we fail the job, and discard the message
         await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { exceptions: error } });
         return nack(false);
     }
 
-    let restarted = [];
+    let restarted = 0;
 
     // We only want to restart instances that are actually online already
     instances = instances.filter(instance => instance.Status === 'online');
@@ -64,26 +72,29 @@ async function rollingRestart(msg, ack, nack) {
         }
 
         let promises = [];
-        let awaitingRestart = [];
+        let awaitingRestart = 0;
 
         // restart this window of instances
         for (let j = 0; j < window && j + i < instances.length; j++) {
             promises.push(restartInstance(instances[i+j], msg._id, `${j * 15}s`));
-            awaitingRestart.push(instances[i+j]);
+            awaitingRestart += 1;
         }
 
         try {
             await Promise.all(promises);
-            restarted = restarted.concat(awaitingRestart);
+            restarted += awaitingRestart;
         } catch (e) {
             log.error(e);
+
+            // If there was an error performing any restart, we fail the task and discard the message
             await Model.findByIdAndUpdate(msg._id, { status: 'FAILED', $push: { exceptions: e } });
             return nack(false);
         }
 
-        log.info(`Rolling Restarter for ${stack}/${layer}: ${restarted.length} / ${instances.length} restarted.`);
+        log.info(`Rolling Restarter for ${stack}/${layer}: ${restarted} / ${instances.length} restarted.`);
     }
 
+    // If we made it this far, the task is completed!
     await Model.findByIdAndUpdate(msg._id, { status: 'COMPLETED' });
 
     log.info(`Completed layer-rolling-restart: ${task._id}`);
@@ -94,6 +105,7 @@ async function rollingRestart(msg, ack, nack) {
 /**
  * This shuts down and starts up one instance, by ID
  * @param {String} instanceID
+ * @returns {Instance}
  */
 async function restartInstance(instance, recordID, offset='0s') {
     const { InstanceId, Hostname } = instance;
@@ -138,6 +150,7 @@ async function restartInstance(instance, recordID, offset='0s') {
 /**
  * Set the record to status: CANCELLED
  * @param {String|ObjectId} recordID The _id of the record to cancel
+ * @returns {Object} The cancelled Task
  */
 async function cancelTask(recordID) {
     const cancelledTask = await Model.findByIdAndUpdate(recordID, { $set: { status: 'CANCELLED' } }, { new: true });
