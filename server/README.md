@@ -78,7 +78,7 @@ MONGO_PORT | no | Just the port of your MongoDB primary. Defaults to `27017`.
 
 ## NOTES
 
-AWSuper relies on the [delayed message exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange) plugin for RabbitMQ to handle scheduling, so if you choose not to rely on the rabbitmq that is included with the container, make sure the rabbitmq you point to does include this plugin.
+AWSuper relies on the [delayed message exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange) plugin for RabbitMQ to handle scheduling, so if you choose not to rely on the rabbitmq that is included with the container, make sure the rabbitmq you point to does include this plugin, such as [shawnrushefsky/rabbitmq-delayed-message-exchange](https://hub.docker.com/r/shawnrushefsky/rabbitmq-delayed-message-exchange/).
 
 # Tasks
 
