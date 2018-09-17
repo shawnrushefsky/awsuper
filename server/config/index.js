@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const child_process = require('child-process');
+const child_process = require('child_process');
 const log = require('../src/utils/logger');
 
 const base = require('./base');

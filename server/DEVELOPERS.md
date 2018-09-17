@@ -22,9 +22,9 @@ version: '3'
 services:
   awsuper-server:
     environment:
-        -ACCESS_KEY_ID=<your key>
-        -SECRET_ACESS_KEY=<your secret>
-        -REGION=<your region>
+        - ACCESS_KEY_ID=<your key>
+        - SECRET_ACESS_KEY=<your secret>
+        - REGION=<your region>
 ```
 
 Both `config/aws.js` and `env.yml` are already included in the `.gitignore`, which should streamline PRs by automatically excluding any variables that are specific to your AWS environment.
@@ -33,7 +33,7 @@ Both `config/aws.js` and `env.yml` are already included in the `.gitignore`, whi
 
 Once you've followed the previous steps, this one is easy:
 
-`docker-compose up -f docker-compose.yml -f env.yml --build`.  This will start a container named `awsuper` on your machine, with the appropriate environment variables, and with the `server` directory volume-mounted into the container. It will not start the server, though.
+`docker-compose -f docker-compose.yml -f env.yml up --build`.  This will start a container named `awsuper` on your machine, with the appropriate environment variables, and with the `server` directory volume-mounted into the container. It will not start the server, though.
 
 To get a shell in the container, open a new terminal and enter:
 

@@ -76,6 +76,10 @@ RABBIT_PORT | no | Just the port of the your RabbitMQ instance, or other AMQP br
 MONGO_HOST | no | Just the hostname of your MongoDB primary. Defaults to `localhost`, as the container includes MongoDB by default.
 MONGO_PORT | no | Just the port of your MongoDB primary. Defaults to `27017`.
 
+## NOTES
+
+AWSuper relies on the [delayed message exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange) plugin for RabbitMQ to handle scheduling, so if you choose not to rely on the rabbitmq that is included with the container, make sure the rabbitmq you point to does include this plugin.
+
 # Tasks
 
 While the AWSuper API provides some basic inspection capabilities of your OpsWorks stacks and Layers, most of it's functionality is provided by a pluggable `Task` framework.
