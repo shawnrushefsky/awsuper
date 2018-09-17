@@ -40,4 +40,10 @@ function validAWSConfig(awsConfig) {
 
 const config = _.merge(base, envConfig, awsConfig);
 
+// Prefer environment variables for rabbit and mongo setup, fall back to config files.
+config.rabbit.host = process.env.RABBIT_HOST || config.rabbit.host;
+config.rabbit.port = process.env.RABBIT_PORT || config.rabbit.port;
+config.mongo.host = process.env.MONGO_HOST || config.mongo.host;
+config.mongo.port = process.env.MONGO_PORT || config.mongo.port;
+
 module.exports = config;

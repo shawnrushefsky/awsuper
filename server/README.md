@@ -62,6 +62,20 @@ module.exports = {
 
 When the server starts it will output your auth token, which you will need to use in the Authorization header for every request
 
+# Environment Variables
+
+You may customize the deployment of AWSuper through the use of environment variables:
+
+name | required | description
+-----|----------|-------------
+ACCESS_KEY_ID | yes | Your AWS Access Key ID
+SECRET_ACCESS_KEY | yes | Your AWS Secret Access Key
+REGION | yes | The AWS region you'll be orchestrating, i.e. "us-east-1".
+RABBIT_HOST | no | Just the hostname of your RabbitMQ instance, or other AMQP broker. Defaults to `localhost`, as the container includes RabbitMQ by default.
+RABBIT_PORT | no | Just the port of the your RabbitMQ instance, or other AMQP broker. Defaults to `5672`.
+MONGO_HOST | no | Just the hostname of your MongoDB primary. Defaults to `localhost`, as the container includes MongoDB by default.
+MONGO_PORT | no | Just the port of your MongoDB primary. Defaults to `27017`.
+
 # Tasks
 
 While the AWSuper API provides some basic inspection capabilities of your OpsWorks stacks and Layers, most of it's functionality is provided by a pluggable `Task` framework.
