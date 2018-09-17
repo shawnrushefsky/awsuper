@@ -1,5 +1,7 @@
 # AWSuper Server
 
+[How can I contribute?](https://github.com/shawnrushefsky/awsuper/blob/master/server/DEVELOPERS.md)
+
 # Launching with Docker
 
 The AWSuper server is hosted on [Docker Hub](https://hub.docker.com/r/shawnrushefsky/awsuper/)
@@ -14,13 +16,15 @@ If you are building a docker image from source, instead of using the version hos
 
 ```shell
 cd server
-docker build -t awsuper .
+./build-local.sh
 ```
+
+This builds the image from `./Dockerfile`, and tags it `awsuper:local`.
 
 And then running it with your AWS credentials as environment variables:
 
 ```shell
-docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper
+docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper:local
 ```
 
 After outputing your auth token, the server will be listening on port 4242.
