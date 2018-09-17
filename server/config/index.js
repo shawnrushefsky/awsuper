@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const child_process = require('child_process');
 const log = require('../src/utils/logger');
 
 const base = require('./base');
@@ -39,5 +40,22 @@ function validAWSConfig(awsConfig) {
 
 
 const config = _.merge(base, envConfig, awsConfig);
+
+// Prefer environment variables for rabbit and mongo setup, fall back to config files.
+config.rabbit.host = process.env.RABBIT_HOST || config.rabbit.host;
+config.rabbit.port = process.env.RABBIT_PORT || config.rabbit.port;
+config.mongo.host = process.env.MONGO_HOST || config.mongo.host;
+config.mongo.port = process.env.MONGO_PORT || config.mongo.port;
+
+// shutdown any unnecessary services, if replacements were specified in the environment
+if (process.env.RABBIT_HOST && process.env.RABBIT_HOST != 'localhost') {
+    log.info('RABBIT_HOST was specified in the environment. Disabling local rabbitmq.');
+    child_process.exec('service rabbitmq-server stop');
+}
+
+if (process.env.MONGO_HOST && process.env.MONGO_HOST != 'localhost') {
+    log.info('MONGO_HOST was specified in the environment. Disabling local mongodb.');
+    child_process.exec('service mongodb stop');
+}
 
 module.exports = config;

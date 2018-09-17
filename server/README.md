@@ -1,5 +1,7 @@
 # AWSuper Server
 
+[How can I contribute?](https://github.com/shawnrushefsky/awsuper/blob/master/server/DEVELOPERS.md)
+
 # Launching with Docker
 
 The AWSuper server is hosted on [Docker Hub](https://hub.docker.com/r/shawnrushefsky/awsuper/)
@@ -14,13 +16,15 @@ If you are building a docker image from source, instead of using the version hos
 
 ```shell
 cd server
-docker build -t awsuper .
+./build-local.sh
 ```
+
+This builds the image from `./Dockerfile`, and tags it `awsuper:local`.
 
 And then running it with your AWS credentials as environment variables:
 
 ```shell
-docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper
+docker container run --name awsuper -e ACCESS_KEY_ID=<your key> -e SECRET_ACESS_KEY=<your secret> -e REGION=<your region> -p 4242:4242 awsuper:local
 ```
 
 After outputing your auth token, the server will be listening on port 4242.
@@ -57,6 +61,24 @@ module.exports = {
 ```
 
 When the server starts it will output your auth token, which you will need to use in the Authorization header for every request
+
+# Environment Variables
+
+You may customize the deployment of AWSuper through the use of environment variables:
+
+name | required | description
+-----|----------|-------------
+ACCESS_KEY_ID | yes | Your AWS Access Key ID
+SECRET_ACCESS_KEY | yes | Your AWS Secret Access Key
+REGION | yes | The AWS region you'll be orchestrating, i.e. "us-east-1".
+RABBIT_HOST | no | Just the hostname of your RabbitMQ instance, or other AMQP broker. Defaults to `localhost`, as the container includes RabbitMQ by default.
+RABBIT_PORT | no | Just the port of the your RabbitMQ instance, or other AMQP broker. Defaults to `5672`.
+MONGO_HOST | no | Just the hostname of your MongoDB primary. Defaults to `localhost`, as the container includes MongoDB by default.
+MONGO_PORT | no | Just the port of your MongoDB primary. Defaults to `27017`.
+
+## NOTES
+
+AWSuper relies on the [delayed message exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange) plugin for RabbitMQ to handle scheduling, so if you choose not to rely on the rabbitmq that is included with the container, make sure the rabbitmq you point to does include this plugin, such as [shawnrushefsky/rabbitmq-delayed-message-exchange](https://hub.docker.com/r/shawnrushefsky/rabbitmq-delayed-message-exchange/).
 
 # Tasks
 
